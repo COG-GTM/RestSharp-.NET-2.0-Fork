@@ -33,9 +33,7 @@ using System.Windows.Browser;
 #if WINDOWS_PHONE
 #endif
 
-#if FRAMEWORK || MONOTOUCH || MONODROID
 using RestSharp.Contrib;
-#endif
 
 
 namespace RestSharp.Extensions
