@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RestSharp.Authenticators.OAuth.Extensions;
-#if !WINDOWS_PHONE
-using RestSharp.Contrib;
-#endif
+using System.Collections.Specialized;
 
 namespace RestSharp.Authenticators.OAuth
 {
@@ -213,25 +211,18 @@ namespace RestSharp.Authenticators.OAuth
 
 			// Include url parameters in query pool
 			var uri = new Uri(url);
-#if !SILVERLIGHT && !WINDOWS_PHONE
-			var urlParameters = HttpUtility.ParseQueryString(uri.Query);
-#else
-			var urlParameters = uri.Query.ParseQueryString();
-#endif
+			var urlParameters = ParseQueryString(uri.Query);
 
-#if !SILVERLIGHT && !WINDOWS_PHONE
-			foreach (var parameter in urlParameters.AllKeys)
-#else
-			foreach (var parameter in urlParameters.Keys)
-#endif
+			foreach (string parameter in urlParameters.Keys)
 			{
+				var value = urlParameters[parameter] ?? string.Empty;
 				switch (method.ToUpperInvariant())
 				{
 					case "POST":
-						parameters.Add(new HttpPostParameter(parameter, urlParameters[parameter]));
+						parameters.Add(new HttpPostParameter(parameter, value));
 						break;
 					default:
-						parameters.Add(parameter, urlParameters[parameter]);
+						parameters.Add(parameter, value);
 						break;
 				}
 			}
@@ -399,6 +390,31 @@ namespace RestSharp.Authenticators.OAuth
 			{
 				parameters.Add(authParameter);
 			}
+		}
+
+		private static NameValueCollection ParseQueryString(string query)
+		{
+			var result = new NameValueCollection();
+			if (string.IsNullOrEmpty(query))
+				return result;
+
+			if (query.StartsWith("?"))
+				query = query.Substring(1);
+
+			var pairs = query.Split('&');
+			foreach (var pair in pairs)
+			{
+				var keyValue = pair.Split('=');
+				if (keyValue.Length == 2)
+				{
+					result.Add(Uri.UnescapeDataString(keyValue[0]), Uri.UnescapeDataString(keyValue[1]));
+				}
+				else if (keyValue.Length == 1)
+				{
+					result.Add(Uri.UnescapeDataString(keyValue[0]), "");
+				}
+			}
+			return result;
 		}
 	}
 }
