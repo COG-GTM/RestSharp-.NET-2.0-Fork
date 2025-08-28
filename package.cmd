@@ -7,10 +7,12 @@ if not exist Download\package\lib\sl3-wp mkdir Download\package\lib\sl3-wp
 if not exist Download\package\lib\sl4-wp71 mkdir Download\package\lib\sl4-wp71
 if not exist Download\package\lib\sl4 mkdir Download\package\lib\sl4
 
-tools\ilmerge.exe /lib:RestSharp\bin\Release /internalize /ndebug /v2 /out:Download\RestSharp.dll RestSharp.dll Newtonsoft.Json.dll
+REM ILMerge no longer needed with modern .NET dependency management
+REM tools\ilmerge.exe /lib:RestSharp\bin\Release /internalize /ndebug /v2 /out:Download\RestSharp.dll RestSharp.dll Newtonsoft.Json.dll
 copy RestSharp\bin\Release\RestSharp.xml Download\
 
-copy RestSharp.Silverlight\bin\Release\*.dll Download\Silverlight\
+REM Legacy platform builds no longer supported
+REM copy RestSharp.Silverlight\bin\Release\*.dll Download\Silverlight\
 copy RestSharp.Silverlight\bin\Release\*.xml Download\Silverlight\
 
 copy RestSharp.WindowsPhone\bin\Release\*.dll Download\WindowsPhone\7.0\
