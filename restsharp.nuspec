@@ -1,20 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package>
 	<metadata>
-		<id>RestSharp</id>
-		<version>102.7</version>
-		<authors>John Sheehan, RestSharp Community</authors>
-		<owners>John Sheehan</owners>
-		<description>Simple REST and HTTP API Client</description>
+		<id>RestSharp.NetCore</id>
+		<version>103.0.0</version>
+		<authors>John Sheehan, RestSharp Community, COG-GTM</authors>
+		<owners>COG-GTM</owners>
+		<description>Simple REST and HTTP API Client for .NET Core - Migrated from .NET Framework with modern HttpClient infrastructure</description>
 		<language>en-US</language>
-		<projectUrl>http://restsharp.org</projectUrl>
-		<licenseUrl>https://github.com/restsharp/RestSharp/blob/master/LICENSE.txt</licenseUrl>
+		<projectUrl>https://github.com/COG-GTM/RestSharp-.NET-2.0-Fork</projectUrl>
+		<licenseUrl>https://github.com/COG-GTM/RestSharp-.NET-2.0-Fork/blob/master/LICENSE.txt</licenseUrl>
 		<iconUrl>http://dl.dropbox.com/u/1827/restsharp100.png</iconUrl>
 		<dependencies>
-			<dependency id="Newtonsoft.Json" />
+			<group targetFramework="net8.0">
+				<dependency id="Newtonsoft.Json" version="13.0.3" />
+				<dependency id="System.Text.Json" version="8.0.0" />
+			</group>
+			<group targetFramework="netstandard2.0">
+				<dependency id="Newtonsoft.Json" version="13.0.3" />
+			</group>
 		</dependencies>
-		<tags>REST HTTP API JSON XML</tags>
+		<tags>REST HTTP API JSON XML .NET Core HttpClient</tags>
 		<releaseNotes>
+			103.0.0 - Complete migration to .NET Core (net8.0, netstandard2.0). Replaced HttpWebRequest with HttpClient, modern async/await patterns, removed legacy platform support (Silverlight, Windows Phone, MonoTouch, MonoDroid). Updated to Newtonsoft.Json 13.0.3. Breaking change: Removed .NET Framework 2.0/3.5 support.
 			102.7 - Updating Json.NET to 4.0.8, misc fixes
 			102.6 - Updating Json.NET reference to 4.0.5
 		</releaseNotes>
