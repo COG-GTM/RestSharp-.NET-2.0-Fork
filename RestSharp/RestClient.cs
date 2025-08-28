@@ -215,12 +215,10 @@ namespace RestSharp
 		/// </summary>
 		public int? MaxRedirects { get; set; }
 
-#if FRAMEWORK
 		/// <summary>
 		/// X509CertificateCollection to be sent with request
 		/// </summary>
 		public X509CertificateCollection ClientCertificates { get; set; }
-#endif
 
 		/// <summary>
 		/// Default is true. Determine whether or not requests that result in 
@@ -374,14 +372,12 @@ namespace RestSharp
 #if !SILVERLIGHT
 			http.FollowRedirects = FollowRedirects;
 #endif
-#if FRAMEWORK
 			if (ClientCertificates != null)
 			{
 				http.ClientCertificates = ClientCertificates;
 			}
 
 			http.MaxRedirects = MaxRedirects;
-#endif
 
 			if(request.Credentials != null)
 			{

@@ -22,20 +22,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
 
-#if Net2
-using RestSharp.Contrib;
-#endif
-
-#if SILVERLIGHT
-using System.Windows.Browser;
-#endif
-
-#if WINDOWS_PHONE
-#endif
-
-#if FRAMEWORK || MONOTOUCH || MONODROID
-using RestSharp.Contrib;
-#endif
 
 
 namespace RestSharp.Extensions
@@ -44,7 +30,7 @@ namespace RestSharp.Extensions
 	{
 		public static string UrlDecode(this string input)
 		{
-			return HttpUtility.UrlDecode(input);
+			return Uri.UnescapeDataString(input);
 		}
 
 		/// <summary>
@@ -58,20 +44,18 @@ namespace RestSharp.Extensions
 
 		public static string HtmlDecode(this string input)
 		{
-			return HttpUtility.HtmlDecode(input);
+			return System.Net.WebUtility.HtmlDecode(input);
 		}
 
 		public static string HtmlEncode(this string input)
 		{
-			return HttpUtility.HtmlEncode(input);
+			return System.Net.WebUtility.HtmlEncode(input);
 		}
 
-#if FRAMEWORK
 		public static string HtmlAttributeEncode(this string input)
 		{
-			return HttpUtility.HtmlAttributeEncode(input);
+			return System.Net.WebUtility.HtmlEncode(input);
 		}
-#endif
 
 		/// <summary>
 		/// Check that a string is not null or empty
