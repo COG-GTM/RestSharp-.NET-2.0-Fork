@@ -107,12 +107,10 @@ namespace RestSharp
 		/// Collection of files to be sent with request
 		/// </summary>
 		public IList<HttpFile> Files { get; private set; }
-#if !SILVERLIGHT
 		/// <summary>
 		/// Whether or not HTTP 3xx response redirects should be automatically followed
 		/// </summary>
 		public bool FollowRedirects { get; set; }
-#endif
 		/// <summary>
 		/// X509CertificateCollection to be sent with request
 		/// </summary>
