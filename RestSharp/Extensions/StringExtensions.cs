@@ -21,6 +21,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using System.Web;
 
 #if Net2
 using RestSharp.Contrib;
@@ -44,7 +45,7 @@ namespace RestSharp.Extensions
 	{
 		public static string UrlDecode(this string input)
 		{
-			return HttpUtility.UrlDecode(input);
+			return Uri.UnescapeDataString(input);
 		}
 
 		/// <summary>
@@ -58,12 +59,12 @@ namespace RestSharp.Extensions
 
 		public static string HtmlDecode(this string input)
 		{
-			return HttpUtility.HtmlDecode(input);
+			return System.Net.WebUtility.HtmlDecode(input);
 		}
 
 		public static string HtmlEncode(this string input)
 		{
-			return HttpUtility.HtmlEncode(input);
+			return System.Net.WebUtility.HtmlEncode(input);
 		}
 
 #if FRAMEWORK
