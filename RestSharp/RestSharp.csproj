@@ -5,6 +5,7 @@
     <RootNamespace>RestSharp</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <LangVersion>8.0</LangVersion>
     <PackageId>RestSharp</PackageId>
     <PackageVersion>102.8.0</PackageVersion>
     <Authors>John Sheehan, RestSharp Community</Authors>
