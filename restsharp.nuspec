@@ -2,19 +2,26 @@
 <package>
 	<metadata>
 		<id>RestSharp</id>
-		<version>102.7</version>
+		<version>102.8.0</version>
 		<authors>John Sheehan, RestSharp Community</authors>
 		<owners>John Sheehan</owners>
-		<description>Simple REST and HTTP API Client</description>
+		<description>Simple REST and HTTP API Client for .NET Core</description>
 		<language>en-US</language>
 		<projectUrl>http://restsharp.org</projectUrl>
 		<licenseUrl>https://github.com/restsharp/RestSharp/blob/master/LICENSE.txt</licenseUrl>
 		<iconUrl>http://dl.dropbox.com/u/1827/restsharp100.png</iconUrl>
 		<dependencies>
-			<dependency id="Newtonsoft.Json" />
+			<group targetFramework="net6.0">
+				<dependency id="Newtonsoft.Json" version="13.0.3" />
+				<dependency id="System.Text.Json" version="6.0.0" />
+			</group>
+			<group targetFramework="netstandard2.0">
+				<dependency id="Newtonsoft.Json" version="13.0.3" />
+			</group>
 		</dependencies>
-		<tags>REST HTTP API JSON XML</tags>
+		<tags>REST HTTP API JSON XML .NET Core</tags>
 		<releaseNotes>
+			102.8.0 - Migrated to .NET Core (net6.0, netstandard2.0), updated to HttpClient, modern async/await patterns, removed legacy platform support
 			102.7 - Updating Json.NET to 4.0.8, misc fixes
 			102.6 - Updating Json.NET reference to 4.0.5
 		</releaseNotes>
