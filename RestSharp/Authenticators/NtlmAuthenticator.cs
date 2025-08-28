@@ -14,8 +14,6 @@
 //   limitations under the License. 
 #endregion
 
-#if FRAMEWORK
-
 namespace RestSharp
 {
 	/// <summary>
@@ -29,5 +27,3 @@ namespace RestSharp
 		}
 	}
 }
-
-#endif
