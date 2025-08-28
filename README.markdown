@@ -1,9 +1,10 @@
-# RestSharp .NET 2.0 Fork - Simple .NET REST Client
+# RestSharp .NET Core - Simple .NET REST Client
 
-This is a fork of RestSharp for ,NET 2.0.
+This is a modernized version of RestSharp migrated from .NET Framework to .NET Core.
 
-To get it to work correctly we have included System.Xml.Linq from Mono project, and LinqBridge.cs, 
-so you may run into conflicts should you have other .NET2 projects that have done the same
+**Target Frameworks:** .NET 8.0 and .NET Standard 2.0
+
+**Migration Notes:** This version has been completely migrated from .NET Framework to .NET Core, with HttpClient replacing HttpWebRequest, modern async/await patterns, and removal of legacy platform support.
 
 ### [Official Site/Blog][1] - [@RestSharp][2]  
 ### Please use the [Google Group][3] for feature requests and troubleshooting usage.
@@ -11,8 +12,9 @@ so you may run into conflicts should you have other .NET2 projects that have don
 
 ### Features
 
-* Supports .NET 3.5+, Silverlight 4, Windows Phone 7, Mono, MonoTouch
-* Automatic XML and JSON deserialization
+* Supports .NET 8.0 and .NET Standard 2.0
+* Modern HttpClient-based HTTP infrastructure
+* Automatic XML and JSON deserialization with Newtonsoft.Json 13.0.3
 * Supports custom serialization and deserialization via ISerializer and IDeserializer
 * Fuzzy element name matching ('product_id' in XML/JSON will match C# property named 'ProductId')
 * Automatic detection of type of content returned
@@ -20,7 +22,8 @@ so you may run into conflicts should you have other .NET2 projects that have don
 * oAuth 1, oAuth 2, Basic, NTLM and Parameter-based Authenticators included
 * Supports custom authentication schemes via IAuthenticator
 * Multi-part form/file uploads
-* T4 Helper to generate C# classes from an XML document
+* Modern async/await patterns with cancellation token support
+* Cross-platform compatibility (.NET Core, .NET Framework via .NET Standard 2.0)
 
 ```csharp
 var client = new RestClient("http://example.com");
