@@ -63,23 +63,15 @@ namespace RestSharp.Extensions
 			return false;
 		}
 
-		public static object ChangeType(this object source, Type newType)
-		{
-#if FRAMEWORK
-			return Convert.ChangeType(source, newType);
-#else
-			return Convert.ChangeType(source, newType, null);
-#endif
-		}
+	public static object ChangeType(this object source, Type newType)
+	{
+		return Convert.ChangeType(source, newType);
+	}
 
-		public static object ChangeType(this object source, Type newType, CultureInfo culture)
-		{
-#if FRAMEWORK
-			return Convert.ChangeType(source, newType, culture);
-#else
-			return Convert.ChangeType(source, newType, null);
-#endif
-		}
+	public static object ChangeType(this object source, Type newType, CultureInfo culture)
+	{
+		return Convert.ChangeType(source, newType, culture);
+	}
 
 		/// <summary>
 		/// Find a value from a System.Enum by trying several possible variants
@@ -89,15 +81,11 @@ namespace RestSharp.Extensions
 		/// <param name="value">Value for which to search</param>
 		/// <param name="culture">The culture used to calculate the name variants</param>
 		/// <returns></returns>
-		public static object FindEnumValue(this Type type, string value, CultureInfo culture)
-		{
-#if FRAMEWORK
-			return Enum.GetValues(type)
-				.Cast<Enum>()
-				.First(v => v.ToString().GetNameVariants(culture).Contains(value, StringComparer.Create(culture, true)));
-#else
-			return Enum.Parse(type, value, true);
-#endif
-		}
+	public static object FindEnumValue(this Type type, string value, CultureInfo culture)
+	{
+		return Enum.GetValues(type)
+			.Cast<Enum>()
+			.First(v => v.ToString().GetNameVariants(culture).Contains(value, StringComparer.Create(culture, true)));
+	}
 	}
 }

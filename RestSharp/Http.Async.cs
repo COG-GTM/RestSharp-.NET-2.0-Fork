@@ -19,19 +19,6 @@ using System.Net;
 using System.Threading;
 using RestSharp.Extensions;
 
-#if SILVERLIGHT
-using System.Windows.Browser;
-using System.Net.Browser;
-#endif
-
-#if WINDOWS_PHONE
-using System.Windows.Threading;
-using System.Windows;
-#endif
-
-#if (FRAMEWORK && !MONOTOUCH && !MONODROID)
-using System.Web;
-#endif
 
 namespace RestSharp
 {
@@ -127,9 +114,7 @@ namespace RestSharp
 
 			if (HasBody || HasFiles)
 			{
-#if !WINDOWS_PHONE
 				webRequest.ContentLength = CalculateContentLength();
-#endif
 				asyncResult = webRequest.BeginGetRequestStream(result => RequestStreamCallback(result, callback), webRequest);
 			}
 
@@ -218,12 +203,10 @@ namespace RestSharp
 
 		private void SetTimeout(IAsyncResult asyncResult, TimeOutState timeOutState)
 		{
-#if FRAMEWORK
 			if (Timeout != 0)
 			{
 				ThreadPool.RegisterWaitForSingleObject(asyncResult.AsyncWaitHandle, new WaitOrTimerCallback(TimeoutCallback), timeOutState, Timeout, true);
-			} 
-#endif		
+			} 		
 		}
 
 		private static void TimeoutCallback(object state, bool timedOut)
@@ -322,22 +305,10 @@ namespace RestSharp
 
 		partial void AddAsyncHeaderActions()
 		{
-#if SILVERLIGHT
-			_restrictedHeaderActions.Add("Content-Length", (r, v) => r.ContentLength = Convert.ToInt64(v));
-#endif
-#if WINDOWS_PHONE
-			// WP7 doesn't as of Beta doesn't support a way to set Content-Length either directly
-			// or indirectly
-			_restrictedHeaderActions.Add("Content-Length", (r, v) => { });
-#endif
 		}
 
-		private HttpWebRequest ConfigureAsyncWebRequest(string method, Uri url)
+	private HttpWebRequest ConfigureAsyncWebRequest(string method, Uri url)
 		{
-#if SILVERLIGHT
-			WebRequest.RegisterPrefix("http://", WebRequestCreator.ClientHttp);
-			WebRequest.RegisterPrefix("https://", WebRequestCreator.ClientHttp);
-#endif
 			var webRequest = (HttpWebRequest)WebRequest.Create(url);
 			webRequest.UseDefaultCredentials = false;
 
@@ -347,28 +318,21 @@ namespace RestSharp
 			webRequest.Method = method;
 
 			// make sure Content-Length header is always sent since default is -1
-#if !WINDOWS_PHONE
-			// WP7 doesn't as of Beta doesn't support a way to set this value either directly
-			// or indirectly
 			if(!HasFiles)
 			{
 				webRequest.ContentLength = 0;
 			}
-#endif
 	
 			if(Credentials != null)
 			{
 				webRequest.Credentials = Credentials;
 			}
 
-#if !SILVERLIGHT
 			if(UserAgent.HasValue())
 			{
 				webRequest.UserAgent = UserAgent;
 			}
-#endif
 
-#if FRAMEWORK
 			if(ClientCertificates != null)
 			{
 				webRequest.ClientCertificates = ClientCertificates;
@@ -391,11 +355,8 @@ namespace RestSharp
 			{
 				webRequest.MaximumAutomaticRedirections = MaxRedirects.Value;
 			}
-#endif
 
-#if !SILVERLIGHT
 			webRequest.AllowAutoRedirect = FollowRedirects;
-#endif
 			return webRequest;
 		}
 
