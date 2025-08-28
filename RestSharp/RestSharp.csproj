@@ -4,6 +4,7 @@
     <AssemblyName>RestSharp</AssemblyName>
     <RootNamespace>RestSharp</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <PackageId>RestSharp</PackageId>
     <PackageVersion>102.8.0</PackageVersion>
     <Authors>John Sheehan, RestSharp Community</Authors>
@@ -27,5 +28,6 @@
   <ItemGroup>
     <None Include="T4Helper\T4Helper.tt" />
     <None Include="T4Helper\T4Toolbox.tt" />
+    <Compile Remove="T4Helper\T4Toolbox.cs" />
   </ItemGroup>
 </Project>
