@@ -25,6 +25,17 @@ namespace RestSharp.IntegrationTests.Helpers
 		}
 
 		/// <summary>
+		/// </summary>
+		public static Action<HttpListenerContext> Timeout()
+		{
+			return ctx =>
+			{
+				System.Threading.Thread.Sleep(10000);
+				ctx.Response.OutputStream.WriteStringUtf8("This should timeout");
+			};
+		}
+
+		/// <summary>
 		/// Response to a request like this:  http://localhost:8080/assets/koala.jpg
 		/// by streaming the file located at "assets\koala.jpg" back to the client.
 		/// </summary>
