@@ -1,0 +1,85 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>RestSharp</RootNamespace>
+    <AssemblyName>RestSharp</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    
+    <!-- Package Information -->
+    <PackageId>RestSharp.Core</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>RestSharp Contributors</Authors>
+    <Company>RestSharp</Company>
+    <Product>RestSharp</Product>
+    <Description>Simple REST and HTTP API Client for .NET Standard 2.0</Description>
+    <Copyright>Copyright (c) RestSharp Contributors</Copyright>
+    <PackageTags>REST;HTTP;API;Client;HttpClient</PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/COG-GTM/RestSharp-.NET-2.0-Fork</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/COG-GTM/RestSharp-.NET-2.0-Fork</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    
+    <!-- Build Configuration -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    
+    <!-- Code Quality -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    
+    <!-- Deterministic Build -->
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <!-- Debug Configuration -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
+  </PropertyGroup>
+
+  <!-- Release Configuration -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>TRACE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
+  </PropertyGroup>
+
+  <!-- Dependencies -->
+  <ItemGroup>
+    <!-- Primary JSON serialization - Newtonsoft.Json 13.0+ for .NET Standard 2.0 compatibility -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    
+    <!-- Optional: System.Text.Json for modern serialization (requires polyfill for netstandard2.0) -->
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    
+    <!-- Required for HttpClient in .NET Standard 2.0 -->
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    
+    <!-- XML serialization support -->
+    <PackageReference Include="System.Xml.XDocument" Version="4.3.0" />
+  </ItemGroup>
+
+  <!-- Source Files - Link to existing RestSharp source files -->
+  <!-- Note: These are commented out until migration scripts consolidate the files -->
+  <!-- The file linking pattern follows RestSharp.WindowsPhone project structure -->
+  <!--
+  <ItemGroup>
+    <Compile Include="..\RestSharp\**\*.cs" LinkBase="Source" />
+    <Compile Remove="..\RestSharp\Properties\AssemblyInfo.cs" />
+    <Compile Remove="..\RestSharp\SharedAssemblyInfo.cs" />
+  </ItemGroup>
+  -->
+
+  <!-- Note: SDK-style projects automatically include all .cs files in the project directory -->
+  <!-- The Placeholder.cs file is automatically included for build validation -->
+
+</Project>
