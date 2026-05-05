@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <RootNamespace>RestSharp</RootNamespace>
+    <AssemblyName>RestSharp</AssemblyName>
+    <ImplicitUsings>false</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <DefineConstants>FRAMEWORK</DefineConstants>
+    <NoWarn>CS0618;CS0612;SYSLIB0014;CS0108;CS0114;CS0162;CS8632</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>RestSharp.Tests.Coverage</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../RestSharp/**/*.cs" Exclude="../RestSharp/Properties/AssemblyInfo.cs;../RestSharp/SharedAssemblyInfo.cs;../RestSharp/T4Helper/**;../RestSharp/Compression/**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+</Project>
