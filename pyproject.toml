@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "restsharp_py"
+version = "0.1.0"
+description = "Python port of RestSharp - a simple REST and HTTP client built on requests/httpx."
+readme = "README.markdown"
+requires-python = ">=3.8"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "RestSharp Python Port" }
+]
+dependencies = [
+    "requests>=2.31.0",
+    "httpx>=0.25.0",
+    "requests-oauthlib>=1.3.0",
+    "requests-ntlm>=1.2.0",
+]
+
+[project.optional-dependencies]
+xml = ["lxml>=4.9.0"]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "responses>=0.23.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["restsharp_py*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

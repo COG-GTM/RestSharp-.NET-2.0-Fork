@@ -35,3 +35,12 @@ Download/
 #Ignore files from MonoDevelop
 *.pidb
 *.userprefs
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.venv/
