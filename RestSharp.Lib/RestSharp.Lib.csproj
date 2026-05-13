@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <RootNamespace>RestSharp</RootNamespace>
+    <AssemblyName>RestSharp</AssemblyName>
+    <DefineConstants>FRAMEWORK</DefineConstants>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <NoWarn>CS0618;CS0672;CS0162;CS0168;CS0219;CS8600;CS8601;CS8602;CS8603;CS8604;CS8625;CS0108;CS0114;CS0579;CS0436</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\RestSharp\**\*.cs" LinkBase="Source" />
+    <Compile Remove="..\RestSharp\Compression\**\*.cs" />
+    <Compile Remove="..\RestSharp\Authenticators\OAuth\**\*.cs" />
+    <Compile Remove="..\RestSharp\Authenticators\OAuth1Authenticator.cs" />
+    <Compile Remove="..\RestSharp\Properties\**\*.cs" />
+    <Compile Remove="..\RestSharp\T4Helper\**\*.cs" />
+  </ItemGroup>
+
+</Project>

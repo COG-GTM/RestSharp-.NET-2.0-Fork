@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <DefineConstants>FRAMEWORK</DefineConstants>
+    <NoWarn>CS0618;CS0672;CS0162;CS0168;CS0219;CS8600;CS8601;CS8602;CS8603;CS8604;CS8625;CS0108;CS0114;CS0579;CS0436;CS8981</NoWarn>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
+    <PackageReference Include="xunit" Version="2.5.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0" />
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="coverlet.msbuild" Version="6.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RestSharp.Lib\RestSharp.Lib.csproj" />
+  </ItemGroup>
+
+  <!-- Include existing test files, sample classes, and data -->
+  <ItemGroup>
+    <Compile Include="..\RestSharp.Tests\SampleClasses\*.cs" LinkBase="SampleClasses" />
+    <Compile Include="..\RestSharp.Tests\Fakes\*.cs" LinkBase="Fakes" />
+    <Compile Include="..\RestSharp.Tests\JsonTests.cs" Link="ExistingTests\JsonTests.cs" />
+    <Compile Include="..\RestSharp.Tests\XmlTests.cs" Link="ExistingTests\XmlTests.cs" />
+    <Compile Include="..\RestSharp.Tests\NamespacedXmlTests.cs" Link="ExistingTests\NamespacedXmlTests.cs" />
+    <Compile Include="..\RestSharp.Tests\SerializerTests.cs" Link="ExistingTests\SerializerTests.cs" />
+    <Compile Include="..\RestSharp.Tests\UrlBuilderTests.cs" Link="ExistingTests\UrlBuilderTests.cs" />
+    <None Include="..\RestSharp.Tests\SampleData\**\*" LinkBase="SampleData" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+
+</Project>
