@@ -53,9 +53,9 @@
     <DocumentationFile>bin\Release\RestSharp.Tests.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=4.0.8.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.4.0.8\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.4.5.1\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -78,8 +78,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AuthenticatorTests.cs" />
+    <Compile Include="ExtensionTests.cs" />
+    <Compile Include="Fakes\FakeHttp.cs" />
+    <Compile Include="Fakes\FakeHttpFactory.cs" />
     <Compile Include="Fakes\NullHttp.cs" />
+    <Compile Include="JsonSerializerTests.cs" />
     <Compile Include="JsonTests.cs" />
+    <Compile Include="OAuthToolsTests.cs" />
+    <Compile Include="RestClientTests.cs" />
+    <Compile Include="RestRequestTests.cs" />
+    <Compile Include="ValidationTests.cs" />
+    <Compile Include="WebPairCollectionTests.cs" />
     <Compile Include="NamespacedXmlTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SampleClasses\BooleanTest.cs" />

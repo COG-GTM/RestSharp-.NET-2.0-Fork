@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Text;
+using System.Threading;
 
 namespace RestSharp.IntegrationTests.Helpers
 {
@@ -34,6 +36,99 @@ namespace RestSharp.IntegrationTests.Helpers
 
 			using(var reader = new StreamReader(pathToFile))
 				reader.BaseStream.CopyTo(context.Response.OutputStream);
+		}
+
+		/// <summary>
+		/// Echoes request headers back as response body.
+		/// </summary>
+		public static void EchoHeaders(HttpListenerContext context)
+		{
+			var sb = new StringBuilder();
+			foreach (string key in context.Request.Headers.AllKeys)
+			{
+				sb.AppendFormat("{0}: {1}\n", key, context.Request.Headers[key]);
+			}
+			context.Response.OutputStream.WriteStringUtf8(sb.ToString());
+		}
+
+		/// <summary>
+		/// Echoes request cookies back as response body.
+		/// </summary>
+		public static void EchoCookies(HttpListenerContext context)
+		{
+			var sb = new StringBuilder();
+			foreach (Cookie cookie in context.Request.Cookies)
+			{
+				sb.AppendFormat("{0}={1}\n", cookie.Name, cookie.Value);
+			}
+			context.Response.OutputStream.WriteStringUtf8(sb.ToString());
+		}
+
+		/// <summary>
+		/// Echoes the HTTP method used.
+		/// </summary>
+		public static void EchoMethod(HttpListenerContext context)
+		{
+			context.Response.OutputStream.WriteStringUtf8(context.Request.HttpMethod);
+		}
+
+		/// <summary>
+		/// Returns a handler that responds with a 302 redirect N times then 200.
+		/// </summary>
+		public static Action<HttpListenerContext> RedirectHandler(int times, string baseUrl)
+		{
+			var count = 0;
+			return ctx =>
+			{
+				count++;
+				if (count <= times)
+				{
+					ctx.Response.StatusCode = 302;
+					ctx.Response.RedirectLocation = baseUrl;
+				}
+				else
+				{
+					ctx.Response.StatusCode = 200;
+					ctx.Response.OutputStream.WriteStringUtf8("Done");
+				}
+			};
+		}
+
+		/// <summary>
+		/// Returns a handler that delays the response by delayMs milliseconds.
+		/// </summary>
+		public static Action<HttpListenerContext> TimeoutHandler(int delayMs)
+		{
+			return ctx =>
+			{
+				Thread.Sleep(delayMs);
+				ctx.Response.OutputStream.WriteStringUtf8("Delayed");
+			};
+		}
+
+		/// <summary>
+		/// Returns a handler that sets a cookie in the response.
+		/// </summary>
+		public static Action<HttpListenerContext> SetCookieHandler(string name, string value)
+		{
+			return ctx =>
+			{
+				var cookie = new Cookie(name, value, "/");
+				ctx.Response.SetCookie(cookie);
+				ctx.Response.OutputStream.WriteStringUtf8("OK");
+			};
+		}
+
+		/// <summary>
+		/// Returns a handler that returns a specific status code.
+		/// </summary>
+		public static Action<HttpListenerContext> StatusCodeHandler(int code)
+		{
+			return ctx =>
+			{
+				ctx.Response.StatusCode = code;
+				ctx.Response.OutputStream.WriteStringUtf8("Status " + code);
+			};
 		}
 
 		/// <summary>
