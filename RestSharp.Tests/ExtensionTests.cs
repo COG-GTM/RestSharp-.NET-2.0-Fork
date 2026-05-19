@@ -141,7 +141,7 @@ namespace RestSharp.Tests
 		[Fact]
 		public void ToPascalCase_Without_Underscores()
 		{
-			Assert.Equal("SomeText", "some_text".ToPascalCase(false, Invariant));
+			Assert.Equal("Some_Text", "some_text".ToPascalCase(false, Invariant));
 			Assert.Contains("_", "some_text".ToPascalCase(false, Invariant));
 		}
 
