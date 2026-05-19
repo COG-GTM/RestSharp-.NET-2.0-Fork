@@ -16,3 +16,4 @@ using System.Runtime.InteropServices;
 [assembly: Guid("d2b12a34-b748-47f9-8ad6-f84da992c64b")]
 
 [assembly: InternalsVisibleTo("RestSharp.IntegrationTests")]
+[assembly: InternalsVisibleTo("RestSharp.Tests")]
