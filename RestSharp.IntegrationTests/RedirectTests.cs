@@ -11,15 +11,16 @@ namespace RestSharp.IntegrationTests
 		[Fact]
 		public void FollowRedirects_True_Follows_302()
 		{
-			using (SimpleServer.Create(BaseUrl, Handlers.StatusCodeHandler(302)))
+			// RedirectHandler needs multiple requests: 1 redirect + 1 final = 2
+			using (SimpleServer.Create(BaseUrl, Handlers.RedirectHandler(1, BaseUrl), maxRequests: 2))
 			{
 				var client = new RestClient(BaseUrl);
 				client.FollowRedirects = true;
 				var request = new RestRequest("", Method.GET);
 
 				var response = client.Execute(request);
-				// When following redirects, the response is the final one
-				Assert.NotNull(response);
+				Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+				Assert.Equal("Done", response.Content);
 			}
 		}
 
