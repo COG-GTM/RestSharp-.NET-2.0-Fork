@@ -1,9 +1,10 @@
-# RestSharp .NET 2.0 Fork - Simple .NET REST Client
+# RestSharp - Simple .NET REST Client
 
-This is a fork of RestSharp for ,NET 2.0.
+This fork of RestSharp targets .NET Framework 4.8.
 
-To get it to work correctly we have included System.Xml.Linq from Mono project, and LinqBridge.cs, 
-so you may run into conflicts should you have other .NET2 projects that have done the same
+It was originally a .NET 2.0 fork that bundled `System.Xml.Linq` from the Mono
+project and `LinqBridge` to backport LINQ. Those shims are no longer needed on
+.NET Framework 4.8 (LINQ and `System.Xml.Linq` are built in) and have been removed.
 
 ### [Official Site/Blog][1] - [@RestSharp][2]  
 ### Please use the [Google Group][3] for feature requests and troubleshooting usage.
@@ -11,7 +12,7 @@ so you may run into conflicts should you have other .NET2 projects that have don
 
 ### Features
 
-* Supports .NET 3.5+, Silverlight 4, Windows Phone 7, Mono, MonoTouch
+* Targets .NET Framework 4.8
 * Automatic XML and JSON deserialization
 * Supports custom serialization and deserialization via ISerializer and IDeserializer
 * Fuzzy element name matching ('product_id' in XML/JSON will match C# property named 'ProductId')
