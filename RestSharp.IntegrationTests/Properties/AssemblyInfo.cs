@@ -1,6 +1,11 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Xunit;
+
+// Integration tests share a fixed local HTTP listener port, so they must run
+// serially. xunit 2.x parallelizes test collections by default; disable it.
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
