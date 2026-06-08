@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RestSharp.Authenticators.OAuth.Extensions;
-#if !WINDOWS_PHONE
 using RestSharp.Contrib;
-#endif
 
 namespace RestSharp.Authenticators.OAuth
 {
@@ -213,17 +211,9 @@ namespace RestSharp.Authenticators.OAuth
 
 			// Include url parameters in query pool
 			var uri = new Uri(url);
-#if !SILVERLIGHT && !WINDOWS_PHONE
 			var urlParameters = HttpUtility.ParseQueryString(uri.Query);
-#else
-			var urlParameters = uri.Query.ParseQueryString();
-#endif
 
-#if !SILVERLIGHT && !WINDOWS_PHONE
 			foreach (var parameter in urlParameters.AllKeys)
-#else
-			foreach (var parameter in urlParameters.Keys)
-#endif
 			{
 				switch (method.ToUpperInvariant())
 				{
