@@ -65,7 +65,6 @@ namespace RestSharp
 		/// <param name="request"></param>
 		RestRequestAsyncHandle ExecuteAsync<T>(IRestRequest request, Action<RestResponse<T>, RestRequestAsyncHandle> callback) where T : new();
 
-#if FRAMEWORK
 		/// <summary>
 		/// X509CertificateCollection to be sent with request
 		/// </summary>
@@ -74,7 +73,6 @@ namespace RestSharp
 		RestResponse<T> Execute<T>(IRestRequest request) where T : new();
 		
 		IWebProxy Proxy { get; set; }
-#endif
 
 		Uri BuildUri(IRestRequest request);
 	}
