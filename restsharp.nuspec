@@ -2,7 +2,7 @@
 <package>
 	<metadata>
 		<id>RestSharp</id>
-		<version>102.7</version>
+		<version>103.0</version>
 		<authors>John Sheehan, RestSharp Community</authors>
 		<owners>John Sheehan</owners>
 		<description>Simple REST and HTTP API Client</description>
@@ -11,10 +11,11 @@
 		<licenseUrl>https://github.com/restsharp/RestSharp/blob/master/LICENSE.txt</licenseUrl>
 		<iconUrl>http://dl.dropbox.com/u/1827/restsharp100.png</iconUrl>
 		<dependencies>
-			<dependency id="Newtonsoft.Json" />
+			<dependency id="Newtonsoft.Json" version="[13.0.3,)" />
 		</dependencies>
 		<tags>REST HTTP API JSON XML</tags>
 		<releaseNotes>
+			103.0 - Retargeted to .NET Framework 4.8; removed the legacy .NET 2.0 project and polyfills; updated Json.NET to 13.0.3
 			102.7 - Updating Json.NET to 4.0.8, misc fixes
 			102.6 - Updating Json.NET reference to 4.0.5
 		</releaseNotes>
