@@ -1,73 +1,62 @@
-# RestSharp .NET 2.0 Fork - Simple .NET REST Client
+# RestSharp - Simple .NET REST Client
 
-This is a fork of RestSharp for ,NET 2.0.
+A modern .NET 8 REST and HTTP client library, consuming [RestSharp](https://www.nuget.org/packages/RestSharp) via NuGet.
 
-To get it to work correctly we have included System.Xml.Linq from Mono project, and LinqBridge.cs, 
-so you may run into conflicts should you have other .NET2 projects that have done the same
-
-### [Official Site/Blog][1] - [@RestSharp][2]  
-### Please use the [Google Group][3] for feature requests and troubleshooting usage.
-### License: Apache License 2.0  
+### License: Apache License 2.0
 
 ### Features
 
-* Supports .NET 3.5+, Silverlight 4, Windows Phone 7, Mono, MonoTouch
+* Targets .NET 8
 * Automatic XML and JSON deserialization
 * Supports custom serialization and deserialization via ISerializer and IDeserializer
 * Fuzzy element name matching ('product_id' in XML/JSON will match C# property named 'ProductId')
 * Automatic detection of type of content returned
 * GET, POST, PUT, HEAD, OPTIONS, DELETE supported
-* oAuth 1, oAuth 2, Basic, NTLM and Parameter-based Authenticators included
+* OAuth 1, OAuth 2, Basic, NTLM and Parameter-based Authenticators included
 * Supports custom authentication schemes via IAuthenticator
 * Multi-part form/file uploads
-* T4 Helper to generate C# classes from an XML document
+* Async/await support throughout
+
+### Getting Started
+
+```bash
+dotnet restore
+dotnet build
+dotnet test
+```
+
+### Usage
 
 ```csharp
-var client = new RestClient("http://example.com");
-// client.Authenticator = new HttpBasicAuthenticator(username, password);
+var client = new RestClient("https://example.com");
 
-var request = new RestRequest("resource/{id}", Method.POST);
-request.AddParameter("name", "value"); // adds to POST or URL querystring based on Method
-request.AddUrlSegment("id", 123); // replaces matching token in request.Resource
+// Simple GET with async/await
+var request = new RestRequest("resource/{id}");
+request.AddUrlSegment("id", 123);
+var response = await client.GetAsync<MyResource>(request);
 
-// add parameters for all properties on an object
-request.AddObject(object);
+// POST with body
+var postRequest = new RestRequest("resource", Method.Post);
+postRequest.AddJsonBody(new { Name = "value", Id = 123 });
+var postResponse = await client.PostAsync<MyResource>(postRequest);
 
-// or just whitelisted properties
-request.AddObject(object, "PersonId", "Name", ...);
+// Using shorthand methods
+var resource = await client.GetJsonAsync<MyResource>("resource/123");
 
-// easily add HTTP Headers
-request.AddHeader("header", "value");
-
-// add files to upload (works with compatible verbs)
-request.AddFile(path);
-
-// execute the request
-RestResponse response = client.Execute(request);
-var content = response.Content; // raw content as string
-
-// or automatically deserialize result
-// return content type is sniffed but can be explicitly set via RestClient.AddHandler();
-RestResponse<Person> response2 = client.Execute<Person>(request);
-var name = response2.Data.Name;
-
-// or download and save file to disk
-client.DownloadData(request).SaveAs(path);
-
-// easy async support
-client.ExecuteAsync(request, response => {
-    Console.WriteLine(response.Content);
-});
-
-// async with deserialization
-var asyncHandle = client.ExecuteAsync<Person>(request, response => {
-    Console.WriteLine(response.Data.Name);
-});
-
-// abort the request on demand
-asyncHandle.Abort();
+// Adding headers and parameters
+var request2 = new RestRequest("resource");
+request2.AddHeader("X-Custom-Header", "value");
+request2.AddQueryParameter("filter", "active");
+var result = await client.ExecuteAsync<List<MyResource>>(request2);
 ```
- 
-  [1]: http://restsharp.org
-  [2]: http://twitter.com/RestSharp
-  [3]: http://groups.google.com/group/RestSharp
+
+### Project Structure
+
+- `RestSharp/` — Main project (references RestSharp NuGet package)
+- `RestSharp.Tests/` — Unit tests (NUnit)
+- `RestSharp.IntegrationTests/` — Integration tests (NUnit)
+
+### Links
+
+- [RestSharp on NuGet](https://www.nuget.org/packages/RestSharp)
+- [RestSharp Documentation](https://restsharp.dev)
