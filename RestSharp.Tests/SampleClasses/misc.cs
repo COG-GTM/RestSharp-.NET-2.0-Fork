@@ -1,167 +1,213 @@
-﻿#region Licensed
-//   Copyright 2010 John Sheehan
-//
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License. 
-#endregion
+using System.Text.Json.Serialization;
 
-using System;
-using System.Collections.Generic;
-using RestSharp.Serializers;
+namespace RestSharp.Tests.SampleClasses;
 
-namespace RestSharp.Tests
+public class PersonForXml
 {
-	public class PersonForXml
-	{
-		public string Name { get; set; }
-		public DateTime StartDate { get; set; }
-		public int Age { get; set; }
-		public decimal Percent { get; set; }
-		public long BigNumber { get; set; }
-		public bool IsCool { get; set; }
-		public List<Friend> Friends { get; set; }
-		public Friend BestFriend { get; set; }
+    public string? Name { get; set; }
+    public DateTime StartDate { get; set; }
+    public int Age { get; set; }
+    public decimal Percent { get; set; }
+    public long BigNumber { get; set; }
+    public bool IsCool { get; set; }
+    public List<Friend>? Friends { get; set; }
+    public Friend? BestFriend { get; set; }
 
-		protected string Ignore { get; set; }
-		public string IgnoreProxy { get { return Ignore; } }
+    protected string? Ignore { get; set; }
+    public string? IgnoreProxy => Ignore;
 
-		protected string ReadOnly { get { return null; } }
-		public string ReadOnlyProxy { get { return ReadOnly; } }
+    protected string? ReadOnly => null;
+    public string? ReadOnlyProxy => ReadOnly;
 
-		public FoeList Foes { get; set; }
+    public FoeList? Foes { get; set; }
 
-		public Guid UniqueId { get; set; }
-		public Guid EmptyGuid { get; set; }
+    public Guid UniqueId { get; set; }
+    public Guid EmptyGuid { get; set; }
 
-		public Uri Url { get; set; }
-		public Uri UrlPath { get; set; }
+    public Uri? Url { get; set; }
+    public Uri? UrlPath { get; set; }
 
-		public Order Order { get; set; }
+    public Order Order { get; set; }
 
-		public Disposition Disposition { get; set; }
+    public Disposition Disposition { get; set; }
+}
 
-	}
+public class PersonForJson
+{
+    [JsonPropertyName("Name")]
+    public string? Name { get; set; }
 
-	public class PersonForJson
-	{
-		public string Name { get; set; }
-		public DateTime StartDate { get; set; }
-		public int Age { get; set; }
-		public decimal Percent { get; set; }
-		public long BigNumber { get; set; }
-		public bool IsCool { get; set; }
-		public List<Friend> Friends { get; set; }
-		public Friend BestFriend { get; set; }
-		public Guid Guid { get; set; }
-		public Guid EmptyGuid { get; set; }
-		public Uri Url { get; set; }
-		public Uri UrlPath { get; set; }
+    [JsonPropertyName("StartDate")]
+    public DateTime StartDate { get; set; }
 
-		protected string Ignore { get; set; }
-		public string IgnoreProxy { get { return Ignore; } }
+    [JsonPropertyName("Age")]
+    public int Age { get; set; }
 
-		protected string ReadOnly { get { return null; } }
-		public string ReadOnlyProxy { get { return ReadOnly; } }
+    [JsonPropertyName("Percent")]
+    public decimal Percent { get; set; }
 
-		public Dictionary<string, Foe> Foes { get; set; }
+    [JsonPropertyName("BigNumber")]
+    public long BigNumber { get; set; }
 
-		public Order Order { get; set; }
+    [JsonPropertyName("IsCool")]
+    public bool IsCool { get; set; }
 
-		public Disposition Disposition { get; set; }
-	}
+    [JsonPropertyName("Friends")]
+    public List<Friend>? Friends { get; set; }
 
-	public enum Order { 
-		First,
-		Second,
-		Third
-	}
+    [JsonPropertyName("BestFriend")]
+    public Friend? BestFriend { get; set; }
 
-	public enum Disposition
-	{
-		Friendly,
-		SoSo,
-		SteerVeryClear
-	}
+    [JsonPropertyName("Guid")]
+    public Guid Guid { get; set; }
 
-	public class Friend
-	{
-		public string Name { get; set; }
-		public int Since { get; set; }
-	}
+    [JsonPropertyName("EmptyGuid")]
+    public Guid EmptyGuid { get; set; }
 
-	public class Foe
-	{
-		public string Nickname { get; set; }
-	}
+    [JsonPropertyName("Url")]
+    public Uri? Url { get; set; }
 
-	public class FoeList : List<Foe>
-	{
-		public string Team { get; set; }
-	}
+    [JsonPropertyName("UrlPath")]
+    public Uri? UrlPath { get; set; }
 
-	public class Birthdate
-	{
-		public DateTime Value { get; set; }
-	}
+    [JsonIgnore]
+    protected string? Ignore { get; set; }
+    [JsonIgnore]
+    public string? IgnoreProxy => Ignore;
 
-	public class OrderedProperties
-	{
-		[SerializeAs(Index = 2)]
-		public string Name { get; set; }
-		[SerializeAs(Index = 3)]
-		public int Age { get; set; }
-		[SerializeAs(Index = 1)]
-		public DateTime StartDate { get; set; }
-	}
+    [JsonIgnore]
+    protected string? ReadOnly => null;
+    [JsonIgnore]
+    public string? ReadOnlyProxy => ReadOnly;
 
-	public class DatabaseCollection : List<Database>
-	{
-	}
+    [JsonPropertyName("Foes")]
+    public Dictionary<string, Foe>? Foes { get; set; }
 
-	public class Database
-	{
-		public string Name { get; set; }
-		public string InitialCatalog { get; set; }
-		public string DataSource { get; set; }
-	}
+    [JsonPropertyName("Order")]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public Order Order { get; set; }
 
-	public class Generic<T>
-	{
-		public T Data { get; set; }
-	}
+    [JsonPropertyName("Disposition")]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public Disposition Disposition { get; set; }
+}
 
-	public class GenericWithList<T>
-	{
-		public List<T> Items { get; set; }
-	}
+public enum Order
+{
+    First,
+    Second,
+    Third
+}
 
-	public class DateTimeTestStructure
-	{
-		public DateTime DateTime { get; set; }
-		public DateTime? NullableDateTimeWithNull { get; set; }
-		public DateTime? NullableDateTimeWithValue { get; set; }
-		public DateTimeOffset DateTimeOffset { get; set; }
-		public DateTimeOffset? NullableDateTimeOffsetWithNull { get; set; }
-		public DateTimeOffset? NullableDateTimeOffsetWithValue { get; set; }
-	}
+public enum Disposition
+{
+    Friendly,
+    SoSo,
+    SteerVeryClear
+}
 
-	public class JsonEnumsTestStructure
-	{
-		public Disposition Upper { get; set; }
-		public Disposition Lower { get; set; }
-		public Disposition CamelCased { get; set; }
-		public Disposition Underscores { get; set; }
-		public Disposition LowerUnderscores { get; set; }
-		public Disposition Dashes { get; set; }
-		public Disposition LowerDashes { get; set; }
-	}
+public class Friend
+{
+    [JsonPropertyName("Name")]
+    public string? Name { get; set; }
+
+    [JsonPropertyName("Since")]
+    public int Since { get; set; }
+}
+
+public class Foe
+{
+    [JsonPropertyName("Nickname")]
+    public string? Nickname { get; set; }
+}
+
+public class FoeList : List<Foe>
+{
+    public string? Team { get; set; }
+}
+
+public class Birthdate
+{
+    [JsonPropertyName("Value")]
+    public DateTime Value { get; set; }
+}
+
+public class OrderedProperties
+{
+    public string? Name { get; set; }
+    public int Age { get; set; }
+    public DateTime StartDate { get; set; }
+}
+
+public class DatabaseCollection : List<Database>
+{
+}
+
+public class Database
+{
+    public string? Name { get; set; }
+    public string? InitialCatalog { get; set; }
+    public string? DataSource { get; set; }
+}
+
+public class Generic<T>
+{
+    public T? Data { get; set; }
+}
+
+public class GenericWithList<T>
+{
+    public List<T>? Items { get; set; }
+}
+
+public class DateTimeTestStructure
+{
+    [JsonPropertyName("DateTime")]
+    public DateTime DateTime { get; set; }
+
+    [JsonPropertyName("NullableDateTimeWithNull")]
+    public DateTime? NullableDateTimeWithNull { get; set; }
+
+    [JsonPropertyName("NullableDateTimeWithValue")]
+    public DateTime? NullableDateTimeWithValue { get; set; }
+
+    [JsonPropertyName("DateTimeOffset")]
+    public DateTimeOffset DateTimeOffset { get; set; }
+
+    [JsonPropertyName("NullableDateTimeOffsetWithNull")]
+    public DateTimeOffset? NullableDateTimeOffsetWithNull { get; set; }
+
+    [JsonPropertyName("NullableDateTimeOffsetWithValue")]
+    public DateTimeOffset? NullableDateTimeOffsetWithValue { get; set; }
+}
+
+public class JsonEnumsTestStructure
+{
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public Disposition Upper { get; set; }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public Disposition Lower { get; set; }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public Disposition CamelCased { get; set; }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public Disposition Underscores { get; set; }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public Disposition LowerUnderscores { get; set; }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public Disposition Dashes { get; set; }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public Disposition LowerDashes { get; set; }
+}
+
+public class NullableValues
+{
+    public int? Id { get; set; }
+    public DateTime? StartDate { get; set; }
+    public Guid? UniqueId { get; set; }
 }

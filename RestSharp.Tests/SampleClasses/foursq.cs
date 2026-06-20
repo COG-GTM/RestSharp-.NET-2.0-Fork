@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Text.Json.Serialization;
 
-namespace RestSharp.Tests.SampleClasses
+namespace RestSharp.Tests.SampleClasses;
+
+public class VenuesResponse
 {
-	public class VenuesResponse
-	{
-		public List<Group> Groups { get; set; }
-	}
+    [JsonPropertyName("groups")]
+    public List<Group>? Groups { get; set; }
+}
 
-	public class Group
-	{
-		public string Name { get; set; }
-	}
+public class Group
+{
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
 }

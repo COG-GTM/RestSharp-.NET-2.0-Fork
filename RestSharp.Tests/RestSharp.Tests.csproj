@@ -10,6 +10,7 @@
     <PackageReference Include="NUnit" Version="4.*" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.*" />
     <PackageReference Include="RestSharp" Version="112.*" />
+    <PackageReference Include="RestSharp.Serializers.Xml" Version="112.*" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RestSharp\RestSharp.csproj" />
