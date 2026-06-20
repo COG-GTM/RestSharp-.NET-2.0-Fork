@@ -10,6 +10,9 @@ namespace RestSharp.Tests;
 public class JsonTests
 {
     private const string GuidString = "AC1FC4BC-087A-4242-B8EE-C53EBE9887A5";
+    private readonly string _sampleDataPath = Path.Combine(AppContext.BaseDirectory, "SampleData");
+
+    private string PathFor(string sampleFile) => Path.Combine(_sampleDataPath, sampleFile);
 
     private static readonly JsonSerializerOptions DefaultOptions = new()
     {
@@ -20,7 +23,7 @@ public class JsonTests
     [Test]
     public void Can_Deserialize_4sq_Json_With_Root_Element_Specified()
     {
-        var doc = File.ReadAllText(Path.Combine("SampleData", "4sq.txt"));
+        var doc = File.ReadAllText(PathFor("4sq.txt"));
 
         using var jsonDoc = JsonDocument.Parse(doc);
         var responseElement = jsonDoc.RootElement.GetProperty("response");
@@ -33,7 +36,7 @@ public class JsonTests
     [Test]
     public void Can_Deserialize_Lists_of_Simple_Types()
     {
-        var doc = File.ReadAllText(Path.Combine("SampleData", "jsonlists.txt"));
+        var doc = File.ReadAllText(PathFor("jsonlists.txt"));
         var output = JsonSerializer.Deserialize<JsonLists>(doc, DefaultOptions);
 
         Assert.That(output, Is.Not.Null);
@@ -56,7 +59,7 @@ public class JsonTests
     [Test]
     public void Can_Deserialize_From_Root_Element()
     {
-        var doc = File.ReadAllText(Path.Combine("SampleData", "sojson.txt"));
+        var doc = File.ReadAllText(PathFor("sojson.txt"));
 
         using var jsonDoc = JsonDocument.Parse(doc);
         var userElement = jsonDoc.RootElement.GetProperty("User");
@@ -69,7 +72,7 @@ public class JsonTests
     [Test]
     public void Can_Deserialize_Generic_Members()
     {
-        var doc = File.ReadAllText(Path.Combine("SampleData", "GenericWithList.txt"));
+        var doc = File.ReadAllText(PathFor("GenericWithList.txt"));
         var output = JsonSerializer.Deserialize<Generic<GenericWithList<Foe>>>(doc, DefaultOptions);
 
         Assert.That(output, Is.Not.Null);
@@ -108,7 +111,7 @@ public class JsonTests
     [Test]
     public void Can_Deserialize_Root_Json_Array_To_List()
     {
-        var data = File.ReadAllText(Path.Combine("SampleData", "jsonarray.txt"));
+        var data = File.ReadAllText(PathFor("jsonarray.txt"));
         var output = JsonSerializer.Deserialize<List<status>>(data, DefaultOptions);
 
         Assert.That(output, Is.Not.Null);
@@ -185,7 +188,7 @@ public class JsonTests
     [Test]
     public void Can_Deserialize_DateTime()
     {
-        var doc = File.ReadAllText(Path.Combine("SampleData", "datetimes.txt"));
+        var doc = File.ReadAllText(PathFor("datetimes.txt"));
         var payload = JsonSerializer.Deserialize<DateTimeTestStructure>(doc, DefaultOptions);
 
         Assert.That(payload, Is.Not.Null);
@@ -197,7 +200,7 @@ public class JsonTests
     [Test]
     public void Can_Deserialize_Nullable_DateTime_With_Value()
     {
-        var doc = File.ReadAllText(Path.Combine("SampleData", "datetimes.txt"));
+        var doc = File.ReadAllText(PathFor("datetimes.txt"));
         var payload = JsonSerializer.Deserialize<DateTimeTestStructure>(doc, DefaultOptions);
 
         Assert.That(payload, Is.Not.Null);
@@ -210,7 +213,7 @@ public class JsonTests
     [Test]
     public void Can_Deserialize_Nullable_DateTime_With_Null()
     {
-        var doc = File.ReadAllText(Path.Combine("SampleData", "datetimes.txt"));
+        var doc = File.ReadAllText(PathFor("datetimes.txt"));
         var payload = JsonSerializer.Deserialize<DateTimeTestStructure>(doc, DefaultOptions);
 
         Assert.That(payload, Is.Not.Null);

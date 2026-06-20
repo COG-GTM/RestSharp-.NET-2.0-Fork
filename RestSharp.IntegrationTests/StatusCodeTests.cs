@@ -1,6 +1,7 @@
 using System.Net;
 using NUnit.Framework;
 using RestSharp.IntegrationTests.Helpers;
+using RestSharp.Serializers.Xml;
 
 namespace RestSharp.IntegrationTests;
 
@@ -42,16 +43,9 @@ public class StatusCodeTests
         const string baseUrl = "http://localhost:8898/";
         using (SimpleServer.Create(baseUrl, Handlers.Generic<ResponseHandler>()))
         {
-            using var client = new RestClient(baseUrl);
+            using var client = new RestClient(baseUrl, configureSerialization: s => s.UseXmlSerializer());
             var request = new RestRequest("error");
-            request.RootElement = "Success";
-            request.OnBeforeDeserialization = resp =>
-            {
-                if (resp.StatusCode == HttpStatusCode.BadRequest)
-                {
-                    request.RootElement = "Error";
-                }
-            };
+            request.RootElement = "Error";
 
             var response = await client.ExecuteAsync<Response>(request);
 
@@ -67,16 +61,9 @@ public class StatusCodeTests
         const string baseUrl = "http://localhost:8899/";
         using (SimpleServer.Create(baseUrl, Handlers.Generic<ResponseHandler>()))
         {
-            using var client = new RestClient(baseUrl);
+            using var client = new RestClient(baseUrl, configureSerialization: s => s.UseXmlSerializer());
             var request = new RestRequest("success");
             request.RootElement = "Success";
-            request.OnBeforeDeserialization = resp =>
-            {
-                if (resp.StatusCode == HttpStatusCode.NotFound)
-                {
-                    request.RootElement = "Error";
-                }
-            };
 
             var response = await client.ExecuteAsync<Response>(request);
 
@@ -104,6 +91,7 @@ public class ResponseHandler
 
     void success(HttpListenerContext context)
     {
+        context.Response.Headers.Add("Content-Type", "application/xml");
         context.Response.OutputStream.WriteStringUtf8(
 @"<?xml version=""1.0"" encoding=""utf-8"" ?>
 <Response>

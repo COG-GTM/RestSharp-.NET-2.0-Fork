@@ -15,4 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\RestSharp\RestSharp.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="SampleData\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
