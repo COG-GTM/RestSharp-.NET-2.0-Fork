@@ -18,15 +18,10 @@ public class FileTests
             var response = await client.ExecuteAsync(request);
 
             var expectedPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Koala.jpg");
-            if (File.Exists(expectedPath))
-            {
-                var expected = await File.ReadAllBytesAsync(expectedPath);
-                Assert.That(response.RawBytes, Is.EqualTo(expected));
-            }
-            else
-            {
-                Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK).Or.Not.EqualTo(HttpStatusCode.OK));
-            }
+            Assert.That(File.Exists(expectedPath), Is.True, $"Test asset not found: {expectedPath}");
+
+            var expected = await File.ReadAllBytesAsync(expectedPath);
+            Assert.That(response.RawBytes, Is.EqualTo(expected));
         }
     }
 

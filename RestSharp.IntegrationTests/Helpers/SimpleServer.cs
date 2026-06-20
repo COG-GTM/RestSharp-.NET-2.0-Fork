@@ -34,7 +34,14 @@ public class SimpleServer : IDisposable
                     while (_listener.IsListening)
                     {
                         var context = _listener.GetContext();
-                        _handler(context);
+                        try
+                        {
+                            _handler(context);
+                        }
+                        catch (Exception)
+                        {
+                            context.Response.StatusCode = 500;
+                        }
                         context.Response.Close();
                     }
                 }
