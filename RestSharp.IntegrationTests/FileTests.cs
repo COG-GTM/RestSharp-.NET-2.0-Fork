@@ -1,25 +1,51 @@
-﻿using System;
-using System.IO;
+using System.Net;
+using NUnit.Framework;
 using RestSharp.IntegrationTests.Helpers;
-using Xunit;
 
-namespace RestSharp.IntegrationTests
+namespace RestSharp.IntegrationTests;
+
+[TestFixture]
+public class FileTests
 {
-	public class FileTests
-	{
-		[Fact]
-		public void Handles_Binary_File_Download()
-		{
-			const string baseUrl = "http://localhost:8080/";
-			using(SimpleServer.Create(baseUrl, Handlers.FileHandler))
-			{
-				var client = new RestClient(baseUrl);
-				var request = new RestRequest("Assets/Koala.jpg");
-				var response = client.DownloadData(request);
+    [Test]
+    public async Task Handles_Binary_File_Download()
+    {
+        const string baseUrl = "http://localhost:8895/";
+        using (SimpleServer.Create(baseUrl, Handlers.FileHandler))
+        {
+            using var client = new RestClient(baseUrl);
+            var request = new RestRequest("Assets/Koala.jpg");
+            var response = await client.ExecuteAsync(request);
 
-				var expected = File.ReadAllBytes(Environment.CurrentDirectory + "\\Assets\\Koala.jpg");
-				Assert.Equal(expected, response);
-			}
-		}
-	}
+            var expectedPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Koala.jpg");
+            Assert.That(File.Exists(expectedPath), Is.True, $"Test asset not found: {expectedPath}");
+
+            var expected = await File.ReadAllBytesAsync(expectedPath);
+            Assert.That(response.RawBytes, Is.EqualTo(expected));
+        }
+    }
+
+    [Test]
+    public async Task Can_Upload_File()
+    {
+        const string baseUrl = "http://localhost:8896/";
+        using (SimpleServer.Create(baseUrl, Handlers.Echo))
+        {
+            using var client = new RestClient(baseUrl);
+            var request = new RestRequest("", Method.Post);
+
+            var tempFile = Path.GetTempFileName();
+            await File.WriteAllTextAsync(tempFile, "test file content");
+            try
+            {
+                request.AddFile("file", tempFile);
+                var response = await client.ExecuteAsync(request);
+                Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            }
+            finally
+            {
+                File.Delete(tempFile);
+            }
+        }
+    }
 }
