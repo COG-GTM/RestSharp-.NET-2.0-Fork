@@ -14,14 +14,8 @@
 //   limitations under the License. 
 #endregion
 
-#if FRAMEWORK
 using System;
 using System.Net;
-
-#if !MONOTOUCH && !MONODROID
-using System.Web;
-#endif
-
 using RestSharp.Extensions;
 
 namespace RestSharp
@@ -184,7 +178,6 @@ namespace RestSharp
 		{
 			var webRequest = (HttpWebRequest)WebRequest.Create(url);
 			webRequest.UseDefaultCredentials = false;
-			ServicePointManager.Expect100Continue = false;
 
 			AppendHeaders(webRequest);
 			AppendCookies(webRequest);
@@ -234,4 +227,3 @@ namespace RestSharp
 		}
 	}
 }
-#endif
