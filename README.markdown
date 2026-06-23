@@ -1,9 +1,6 @@
-# RestSharp .NET 2.0 Fork - Simple .NET REST Client
+# RestSharp - Simple .NET REST Client
 
-This is a fork of RestSharp for ,NET 2.0.
-
-To get it to work correctly we have included System.Xml.Linq from Mono project, and LinqBridge.cs, 
-so you may run into conflicts should you have other .NET2 projects that have done the same
+A REST and HTTP API client library for modern .NET (targeting net9.0).
 
 ### [Official Site/Blog][1] - [@RestSharp][2]  
 ### Please use the [Google Group][3] for feature requests and troubleshooting usage.
@@ -11,16 +8,15 @@ so you may run into conflicts should you have other .NET2 projects that have don
 
 ### Features
 
-* Supports .NET 3.5+, Silverlight 4, Windows Phone 7, Mono, MonoTouch
+* Targets .NET 9.0 (modern .NET)
 * Automatic XML and JSON deserialization
 * Supports custom serialization and deserialization via ISerializer and IDeserializer
 * Fuzzy element name matching ('product_id' in XML/JSON will match C# property named 'ProductId')
 * Automatic detection of type of content returned
-* GET, POST, PUT, HEAD, OPTIONS, DELETE supported
+* GET, POST, PUT, HEAD, OPTIONS, DELETE, PATCH supported
 * oAuth 1, oAuth 2, Basic, NTLM and Parameter-based Authenticators included
 * Supports custom authentication schemes via IAuthenticator
 * Multi-part form/file uploads
-* T4 Helper to generate C# classes from an XML document
 
 ```csharp
 var client = new RestClient("http://example.com");

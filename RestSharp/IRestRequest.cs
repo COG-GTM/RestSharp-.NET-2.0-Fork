@@ -107,7 +107,6 @@ namespace RestSharp
 		/// </remarks>
 		int Attempts { get; }
 
-#if FRAMEWORK
 		/// <summary>
 		/// Adds a file to the Files collection to be included with a POST or PUT request 
 		/// (other methods do not support file uploads).
@@ -135,7 +134,6 @@ namespace RestSharp
 		/// <param name="contentType">The MIME type of the file to upload</param>
 		/// <returns>This request</returns>
 		IRestRequest AddFile (string name, byte[] bytes, string fileName, string contentType);
-#endif
 
 		/// <summary>
 		/// Serializes obj to format specified by RequestFormat, but passes xmlNamespace if using the default XmlSerializer
