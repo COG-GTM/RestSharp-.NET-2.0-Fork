@@ -26,7 +26,6 @@ namespace RestSharp.Extensions
 	/// </summary>
 	public static class MiscExtensions
 	{
-#if !WINDOWS_PHONE
 		/// <summary>
 		/// Save a byte array to a file
 		/// </summary>
@@ -36,7 +35,6 @@ namespace RestSharp.Extensions
 		{
 			File.WriteAllBytes(path, input);
 		}
-#endif
 
 		/// <summary>
 		/// Read a stream into a byte array

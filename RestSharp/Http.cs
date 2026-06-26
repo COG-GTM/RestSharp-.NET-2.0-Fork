@@ -23,10 +23,6 @@ using System.Text;
 using System.Security.Cryptography.X509Certificates;
 using RestSharp.Extensions;
 
-#if WINDOWS_PHONE
-using RestSharp.Compression.ZLib;
-#endif
-
 namespace RestSharp
 {
 	/// <summary>
@@ -110,12 +106,10 @@ namespace RestSharp
 		/// Collection of files to be sent with request
 		/// </summary>
 		public IList<HttpFile> Files { get; private set; }
-#if !SILVERLIGHT
 		/// <summary>
 		/// Whether or not HTTP 3xx response redirects should be automatically followed
 		/// </summary>
 		public bool FollowRedirects { get; set; }
-#endif
 #if FRAMEWORK
 		/// <summary>
 		/// X509CertificateCollection to be sent with request
@@ -324,14 +318,7 @@ namespace RestSharp
 #endif
 				response.ContentType = webResponse.ContentType;
 				response.ContentLength = webResponse.ContentLength;
-#if WINDOWS_PHONE
-                if (string.Equals(webResponse.Headers[HttpRequestHeader.ContentEncoding], "gzip", StringComparison.OrdinalIgnoreCase))
-                    response.RawBytes = new GZipStream(webResponse.GetResponseStream()).ReadAsBytes();
-                else
-                    response.RawBytes = webResponse.GetResponseStream().ReadAsBytes();
-#else
-                response.RawBytes = webResponse.GetResponseStream().ReadAsBytes();
-#endif
+				response.RawBytes = webResponse.GetResponseStream().ReadAsBytes();
 				//response.Content = GetString(response.RawBytes);
 				response.StatusCode = webResponse.StatusCode;
 				response.StatusDescription = webResponse.StatusDescription;

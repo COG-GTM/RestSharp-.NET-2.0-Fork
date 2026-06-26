@@ -18,9 +18,7 @@
 using System;
 using System.Net;
 
-#if !MONOTOUCH && !MONODROID
 using System.Web;
-#endif
 
 using RestSharp.Extensions;
 
