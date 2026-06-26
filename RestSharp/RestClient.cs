@@ -41,9 +41,6 @@ namespace RestSharp
 		/// </summary>
 		public RestClient()
 		{
-#if WINDOWS_PHONE
-			UseSynchronizationContext = true;
-#endif
 			ContentHandlers = new Dictionary<string, IDeserializer>();
 			AcceptTypes = new List<string>();
 			DefaultParameters = new List<Parameter>();
@@ -371,9 +368,7 @@ namespace RestSharp
 
 			http.Timeout = request.Timeout == 0 ? Timeout : request.Timeout;
 
-#if !SILVERLIGHT
 			http.FollowRedirects = FollowRedirects;
-#endif
 #if FRAMEWORK
 			if (ClientCertificates != null)
 			{

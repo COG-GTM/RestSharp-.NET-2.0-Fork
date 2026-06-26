@@ -1,12 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 
-#if !SILVERLIGHT
-
-#else
-using Hammock.Silverlight.Compat;
-#endif
-
 namespace RestSharp.Authenticators.OAuth
 {
 	internal class WebParameterCollection : WebPairCollection
@@ -16,11 +10,9 @@ namespace RestSharp.Authenticators.OAuth
 		{
 		}
 
-#if !WINDOWS_PHONE
 		public WebParameterCollection(NameValueCollection collection) : base(collection)
 		{
 		}
-#endif
 
 		public WebParameterCollection()
 		{

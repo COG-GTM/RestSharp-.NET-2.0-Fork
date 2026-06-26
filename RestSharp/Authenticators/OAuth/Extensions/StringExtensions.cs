@@ -5,18 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-#if SILVERLIGHT && !WindowsPhone
-using System.Windows.Browser;
-#endif
-
-#if WindowsPhone
-using System.Web;
-#endif
-
-#if !SILVERLIGHT
-
-#endif
-
 namespace RestSharp.Authenticators.OAuth.Extensions
 {
 	internal static class StringExtensions
@@ -116,10 +104,6 @@ namespace RestSharp.Authenticators.OAuth.Extensions
 		}
 
 		private const RegexOptions Options =
-#if SILVERLIGHT
-			RegexOptions.Compiled | RegexOptions.IgnoreCase;
-#else
 			RegexOptions.IgnoreCase;
-#endif
 	}
 }

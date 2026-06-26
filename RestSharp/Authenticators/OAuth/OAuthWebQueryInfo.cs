@@ -2,9 +2,7 @@ using System;
 
 namespace RestSharp.Authenticators.OAuth
 {
-#if !SILVERLIGHT && !WINDOWS_PHONE
 	[Serializable]
-#endif
 	public class OAuthWebQueryInfo
 	{
 		public virtual string ConsumerKey { get; set; }

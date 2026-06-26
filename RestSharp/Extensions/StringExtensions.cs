@@ -22,16 +22,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
 
-#if SILVERLIGHT
-using System.Windows.Browser;
-#endif
-
-#if WINDOWS_PHONE
-#endif
-
-#if FRAMEWORK || MONOTOUCH || MONODROID
 using RestSharp.Contrib;
-#endif
 
 
 namespace RestSharp.Extensions
