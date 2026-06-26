@@ -1,25 +1,24 @@
-using System;
-using System.Net;
+using System.Threading;
+
 namespace RestSharp
 {
 	public class RestRequestAsyncHandle
 	{
-		public HttpWebRequest WebRequest;
-		
+		public CancellationTokenSource CancellationTokenSource;
+
 		public RestRequestAsyncHandle()
 		{
 		}
-		
-		public RestRequestAsyncHandle(HttpWebRequest webRequest)
+
+		public RestRequestAsyncHandle(CancellationTokenSource cancellationTokenSource)
 		{
-			WebRequest = webRequest;
+			CancellationTokenSource = cancellationTokenSource;
 		}
-		
+
 		public void Abort()
 		{
-			if (WebRequest != null)
-				WebRequest.Abort();
+			if (CancellationTokenSource != null)
+				CancellationTokenSource.Cancel();
 		}
 	}
 }
-

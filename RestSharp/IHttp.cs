@@ -1,4 +1,4 @@
-﻿#region License
+#region License
 //   Copyright 2010 John Sheehan
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.IO;
 using System.Security.Cryptography.X509Certificates;
 
 namespace RestSharp
@@ -28,13 +27,9 @@ namespace RestSharp
 		ICredentials Credentials { get; set; }
 		string UserAgent { get; set; }
 		int Timeout { get; set; }
-#if !SILVERLIGHT
 		bool FollowRedirects { get; set; }
-#endif
-#if FRAMEWORK
 		X509CertificateCollection ClientCertificates { get; set; }
 		int? MaxRedirects { get; set; }
-#endif
 
 		IList<HttpHeader> Headers { get; }
 		IList<HttpParameter> Parameters { get; }
@@ -45,15 +40,14 @@ namespace RestSharp
 
 		Uri Url { get; set; }
 
-		HttpWebRequest DeleteAsync(Action<HttpResponse> action);
-		HttpWebRequest GetAsync(Action<HttpResponse> action);
-		HttpWebRequest HeadAsync(Action<HttpResponse> action);
-		HttpWebRequest OptionsAsync(Action<HttpResponse> action);
-		HttpWebRequest PostAsync(Action<HttpResponse> action);
-		HttpWebRequest PutAsync(Action<HttpResponse> action);
-		HttpWebRequest PatchAsync(Action<HttpResponse> action);
+		RestRequestAsyncHandle DeleteAsync(Action<HttpResponse> action);
+		RestRequestAsyncHandle GetAsync(Action<HttpResponse> action);
+		RestRequestAsyncHandle HeadAsync(Action<HttpResponse> action);
+		RestRequestAsyncHandle OptionsAsync(Action<HttpResponse> action);
+		RestRequestAsyncHandle PostAsync(Action<HttpResponse> action);
+		RestRequestAsyncHandle PutAsync(Action<HttpResponse> action);
+		RestRequestAsyncHandle PatchAsync(Action<HttpResponse> action);
 
-#if FRAMEWORK
 		HttpResponse Delete();
 		HttpResponse Get();
 		HttpResponse Head();
@@ -63,6 +57,5 @@ namespace RestSharp
 		HttpResponse Patch();
 
 		IWebProxy Proxy { get; set; }
-#endif
 	}
 }
