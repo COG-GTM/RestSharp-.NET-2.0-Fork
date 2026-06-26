@@ -1,6 +1,11 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Xunit;
+
+// The integration tests each spin up an HttpListener bound to the same local
+// port, so they must run sequentially rather than in parallel.
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information

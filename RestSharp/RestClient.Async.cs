@@ -41,7 +41,6 @@ namespace RestSharp
 
 			ConfigureHttp(request, http);
 
-			HttpWebRequest webRequest = null;
 			var asyncHandle = new RestRequestAsyncHandle();
 
 			Action<HttpResponse> response_cb = r => ProcessResponse(r, asyncHandle, callback);
@@ -52,33 +51,35 @@ namespace RestSharp
 
 				response_cb = resp => ctx.Post(s => cb(resp), null);
 			}
-			
+
+			RestRequestAsyncHandle handle = null;
 			switch(request.Method)
 			{
 				case Method.GET:
-					webRequest = http.GetAsync(response_cb);
+					handle = http.GetAsync(response_cb);
 					break;
 				case Method.POST:
-					webRequest = http.PostAsync(response_cb);
+					handle = http.PostAsync(response_cb);
 					break;
 				case Method.PUT:
-					webRequest = http.PutAsync(response_cb);
+					handle = http.PutAsync(response_cb);
 					break;
 				case Method.DELETE:
-					webRequest = http.DeleteAsync(response_cb);
+					handle = http.DeleteAsync(response_cb);
 					break;
 				case Method.HEAD:
-					webRequest = http.HeadAsync(response_cb);
+					handle = http.HeadAsync(response_cb);
 					break;
 				case Method.OPTIONS:
-					webRequest = http.OptionsAsync(response_cb);
+					handle = http.OptionsAsync(response_cb);
 					break;
 				case Method.PATCH:
-					webRequest = http.PatchAsync(response_cb);
+					handle = http.PatchAsync(response_cb);
 					break;
 			}
-			
-			asyncHandle.WebRequest = webRequest;
+
+			if (handle != null)
+				asyncHandle.CancellationTokenSource = handle.CancellationTokenSource;
 			return asyncHandle;
 		}
 

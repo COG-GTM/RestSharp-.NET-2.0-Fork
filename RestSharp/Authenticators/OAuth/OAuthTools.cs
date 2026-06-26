@@ -17,23 +17,7 @@ namespace RestSharp.Authenticators.OAuth
 		private const string Unreserved = AlphaNumeric + "-._~";
 		private const string Upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-		private static readonly Random _random;
-		private static readonly object _randomLock = new object();
-
-#if !SILVERLIGHT && !WINDOWS_PHONE
 		private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
-#endif
-
-		static OAuthTools()
-		{
-#if !SILVERLIGHT && !WINDOWS_PHONE
-			var bytes = new byte[4];
-			_rng.GetNonZeroBytes(bytes);
-			_random = new Random(BitConverter.ToInt32(bytes, 0));
-#else
-			_random = new Random();
-#endif
-		}
 
 		/// <summary>
 		/// All text parameters are UTF-8 encoded (per section 5.1).
@@ -50,14 +34,15 @@ namespace RestSharp.Authenticators.OAuth
 		{
 			const string chars = (Lower + Digit);
 
+			var data = new byte[16];
+			_rng.GetBytes(data);
+
 			var nonce = new char[16];
-			lock (_randomLock)
+			for (var i = 0; i < nonce.Length; i++)
 			{
-				for (var i = 0; i < nonce.Length; i++)
-				{
-					nonce[i] = chars[_random.Next(0, chars.Length)];
-				}
+				nonce[i] = chars[data[i] % chars.Length];
 			}
+
 			return new string(nonce);
 		}
 

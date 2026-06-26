@@ -17,6 +17,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -38,12 +39,31 @@ namespace RestSharp.Deserializers
 			Culture = CultureInfo.InvariantCulture;
 		}
 
+		/// <summary>
+		/// Parses XML content with a hardened <see cref="XmlReader"/> that disables
+		/// DTD processing and external entity resolution to prevent XXE attacks.
+		/// </summary>
+		private static XDocument ParseXml(string content)
+		{
+			var settings = new XmlReaderSettings
+			{
+				DtdProcessing = DtdProcessing.Prohibit,
+				XmlResolver = null
+			};
+
+			using (var stringReader = new StringReader(content))
+			using (var xmlReader = XmlReader.Create(stringReader, settings))
+			{
+				return XDocument.Load(xmlReader);
+			}
+		}
+
 		public T Deserialize<T>(RestResponse response) where T : new()
 		{
 			if (string.IsNullOrEmpty( response.Content ))
 				return default(T);
 
-			var doc = XDocument.Parse(response.Content);
+			var doc = ParseXml(response.Content);
 			var root = doc.Root;
 			if (RootElement.HasValue() && doc.Root != null)
 			{

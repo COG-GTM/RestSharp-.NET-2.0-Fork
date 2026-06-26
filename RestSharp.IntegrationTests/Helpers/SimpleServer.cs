@@ -31,19 +31,32 @@ namespace RestSharp.IntegrationTests.Helpers
 
 				_processor = new Thread(() =>
 				{
-					var context = _listener.GetContext();
-					_handler(context);
-					context.Response.Close();
-				}) { Name = "WebServer" };
+					try
+					{
+						var context = _listener.GetContext();
+						_handler(context);
+						context.Response.Close();
+					}
+					catch (HttpListenerException)
+					{
+						// Listener was stopped while waiting for a request.
+					}
+					catch (ObjectDisposedException)
+					{
+						// Listener was disposed while waiting for a request.
+					}
+				}) { Name = "WebServer", IsBackground = true };
 				_processor.Start();
 			}
 		}
 
 		public void Dispose()
 		{
-			_processor.Abort();
 			_listener.Stop();
 			_listener.Close();
+
+			if (_processor != null)
+				_processor.Join(TimeSpan.FromSeconds(5));
 		}
 	}
 }

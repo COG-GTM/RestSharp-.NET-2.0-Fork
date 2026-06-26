@@ -11,6 +11,18 @@ namespace RestSharp.IntegrationTests
 {
 	public class AuthenticationTests
 	{
+		private static string GetRequiredEnv(string name)
+		{
+			var value = Environment.GetEnvironmentVariable(name);
+			if (string.IsNullOrEmpty(value))
+			{
+				throw new InvalidOperationException(
+					string.Format("The '{0}' environment variable must be set to run this test.", name));
+			}
+
+			return value;
+		}
+
 		[Fact]
 		public void Can_Authenticate_With_Basic_Http_Auth()
 		{
@@ -40,8 +52,10 @@ namespace RestSharp.IntegrationTests
 		{
 			var baseUrl = "https://api.twitter.com";
 			var client = new RestClient(baseUrl);
+			var consumerKey = GetRequiredEnv("TWITTER_CONSUMER_KEY");
+			var consumerSecret = GetRequiredEnv("TWITTER_CONSUMER_SECRET");
 			client.Authenticator = OAuth1Authenticator.ForRequestToken(
-				"CONSUMER_KEY", "CONSUMER_SECRET"
+				consumerKey, consumerSecret
 				);
 			var request = new RestRequest("oauth/request_token");
 			var response = client.Execute(request);
@@ -62,7 +76,7 @@ namespace RestSharp.IntegrationTests
 			var verifier = "123456"; // <-- Breakpoint here (set verifier in debugger)
 			request = new RestRequest("oauth/access_token");
 			client.Authenticator = OAuth1Authenticator.ForAccessToken(
-				"P5QziWtocYmgWAhvlegxw", "jBs07SIxJ0kodeU9QtLEs1W1LRgQb9u5Lc987BA94", oauth_token, oauth_token_secret, verifier
+				consumerKey, consumerSecret, oauth_token, oauth_token_secret, verifier
 				);
 			response = client.Execute(request);
 
@@ -77,7 +91,7 @@ namespace RestSharp.IntegrationTests
 
 			request = new RestRequest("account/verify_credentials.xml");
 			client.Authenticator = OAuth1Authenticator.ForProtectedResource(
-				"P5QziWtocYmgWAhvlegxw", "jBs07SIxJ0kodeU9QtLEs1W1LRgQb9u5Lc987BA94", oauth_token, oauth_token_secret
+				consumerKey, consumerSecret, oauth_token, oauth_token_secret
 				);
 
 			response = client.Execute(request);
