@@ -29,10 +29,6 @@ using System.Windows.Threading;
 using System.Windows;
 #endif
 
-#if (FRAMEWORK && !MONOTOUCH && !MONODROID)
-using System.Web;
-#endif
-
 namespace RestSharp
 {
 	/// <summary>
