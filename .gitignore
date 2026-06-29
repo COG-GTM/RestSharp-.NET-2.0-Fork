@@ -35,3 +35,6 @@ Download/
 #Ignore files from MonoDevelop
 *.pidb
 *.userprefs
+#NuGet restore output (PackageReference uses the global packages cache)
+[Pp]ackages/
+*.nupkg

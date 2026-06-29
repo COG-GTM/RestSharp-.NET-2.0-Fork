@@ -31,18 +31,31 @@ namespace RestSharp.IntegrationTests.Helpers
 
 				_processor = new Thread(() =>
 				{
-					var context = _listener.GetContext();
-					_handler(context);
-					context.Response.Close();
-				}) { Name = "WebServer" };
+					try
+					{
+						var context = _listener.GetContext();
+						_handler(context);
+						context.Response.Close();
+					}
+					catch (HttpListenerException)
+					{
+						// Raised when the listener is stopped/closed while
+						// GetContext is blocking - expected during Dispose.
+					}
+					catch (ObjectDisposedException)
+					{
+					}
+				}) { Name = "WebServer", IsBackground = true };
 				_processor.Start();
 			}
 		}
 
 		public void Dispose()
 		{
-			_processor.Abort();
-			_listener.Stop();
+			// Thread.Abort is unsupported on modern .NET; stopping the listener
+			// unblocks GetContext and lets the worker thread exit on its own.
+			if (_listener.IsListening)
+				_listener.Stop();
 			_listener.Close();
 		}
 	}
