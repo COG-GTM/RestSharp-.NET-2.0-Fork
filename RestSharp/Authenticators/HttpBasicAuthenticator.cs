@@ -20,6 +20,14 @@ using System.Text;
 
 namespace RestSharp
 {
+	/// <summary>
+	/// Adds an HTTP Basic <c>Authorization</c> header to the request.
+	/// </summary>
+	/// <remarks>
+	/// Base64 is an encoding, not encryption: the credentials are sent in a trivially reversible
+	/// form on every request. Only use this authenticator against <c>https://</c> endpoints, since
+	/// over plain HTTP the username and password are effectively transmitted in clear text.
+	/// </remarks>
 	public class HttpBasicAuthenticator : IAuthenticator
 	{
 		private readonly string _username;

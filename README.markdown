@@ -23,7 +23,9 @@ so you may run into conflicts should you have other .NET2 projects that have don
 * T4 Helper to generate C# classes from an XML document
 
 ```csharp
-var client = new RestClient("http://example.com");
+var client = new RestClient("https://example.com");
+// Basic auth sends username/password as reversible Base64, not encrypted,
+// so only use it with an https:// base URL.
 // client.Authenticator = new HttpBasicAuthenticator(username, password);
 
 var request = new RestRequest("resource/{id}", Method.POST);

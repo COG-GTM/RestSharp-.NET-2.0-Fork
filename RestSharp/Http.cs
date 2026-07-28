@@ -37,6 +37,53 @@ namespace RestSharp
 		private const string _lineBreak = "\r\n";
 		private static readonly Encoding _defaultEncoding = Encoding.UTF8;
 
+#if FRAMEWORK
+		private static readonly object _securityProtocolLock = new object();
+		private static bool _securityProtocolConfigured;
+
+		/// <summary>
+		/// Negotiates the strongest transport security the runtime supports, preferring TLS 1.2,
+		/// then TLS 1.1, then TLS 1.0. The TLS 1.1 and 1.2 values are cast from their numeric
+		/// equivalents because <see cref="SecurityProtocolType"/> does not define them on older
+		/// target frameworks, and runtimes without support for them throw when they are assigned.
+		/// </summary>
+		private static void ConfigureSecurityProtocol()
+		{
+			lock (_securityProtocolLock)
+			{
+				if (_securityProtocolConfigured)
+				{
+					return;
+				}
+
+				_securityProtocolConfigured = true;
+
+				const SecurityProtocolType tls11 = (SecurityProtocolType)768;
+				const SecurityProtocolType tls12 = (SecurityProtocolType)3072;
+
+				var preferences = new[]
+				{
+					tls12 | tls11 | SecurityProtocolType.Tls,
+					tls11 | SecurityProtocolType.Tls,
+					SecurityProtocolType.Tls
+				};
+
+				foreach (var preference in preferences)
+				{
+					try
+					{
+						ServicePointManager.SecurityProtocol = preference;
+						return;
+					}
+					catch (NotSupportedException)
+					{
+						// The runtime does not know this protocol; fall back to an older one.
+					}
+				}
+			}
+		}
+#endif
+
 		///<summary>
 		/// Creates an IHttp
 		///</summary>
