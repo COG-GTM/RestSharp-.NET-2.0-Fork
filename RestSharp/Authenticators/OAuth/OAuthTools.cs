@@ -17,23 +17,12 @@ namespace RestSharp.Authenticators.OAuth
 		private const string Unreserved = AlphaNumeric + "-._~";
 		private const string Upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-		private static readonly Random _random;
-		private static readonly object _randomLock = new object();
-
 #if !SILVERLIGHT && !WINDOWS_PHONE
 		private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
-#endif
-
-		static OAuthTools()
-		{
-#if !SILVERLIGHT && !WINDOWS_PHONE
-			var bytes = new byte[4];
-			_rng.GetNonZeroBytes(bytes);
-			_random = new Random(BitConverter.ToInt32(bytes, 0));
 #else
-			_random = new Random();
+		private static readonly Random _random = new Random();
+		private static readonly object _randomLock = new object();
 #endif
-		}
 
 		/// <summary>
 		/// All text parameters are UTF-8 encoded (per section 5.1).
@@ -51,6 +40,27 @@ namespace RestSharp.Authenticators.OAuth
 			const string chars = (Lower + Digit);
 
 			var nonce = new char[16];
+#if !SILVERLIGHT && !WINDOWS_PHONE
+			// Bytes above the largest whole multiple of the alphabet size are rejected
+			// so that every character remains equally likely (no modulo bias).
+			const int byteValues = byte.MaxValue + 1;
+			var usable = byteValues - (byteValues % chars.Length);
+
+			var buffer = new byte[nonce.Length];
+			var written = 0;
+			while (written < nonce.Length)
+			{
+				_rng.GetBytes(buffer);
+				for (var i = 0; i < buffer.Length && written < nonce.Length; i++)
+				{
+					if (buffer[i] >= usable)
+					{
+						continue;
+					}
+					nonce[written++] = chars[buffer[i] % chars.Length];
+				}
+			}
+#else
 			lock (_randomLock)
 			{
 				for (var i = 0; i < nonce.Length; i++)
@@ -58,6 +68,7 @@ namespace RestSharp.Authenticators.OAuth
 					nonce[i] = chars[_random.Next(0, chars.Length)];
 				}
 			}
+#endif
 			return new string(nonce);
 		}
 
@@ -245,7 +256,7 @@ namespace RestSharp.Authenticators.OAuth
 		/// <returns></returns>
 		public static string GetSignature(OAuthSignatureMethod signatureMethod, string signatureBase, string consumerSecret, string tokenSecret)
 		{
-			return GetSignature(signatureMethod, OAuthSignatureTreatment.Escaped, consumerSecret, tokenSecret);
+			return GetSignature(signatureMethod, OAuthSignatureTreatment.Escaped, signatureBase, consumerSecret, tokenSecret);
 		}
 
 		/// <summary>
@@ -264,6 +275,11 @@ namespace RestSharp.Authenticators.OAuth
 			string consumerSecret,
 			string tokenSecret)
 		{
+			if (consumerSecret.IsNullOrBlank())
+			{
+				consumerSecret = String.Empty;
+			}
+
 			if (tokenSecret.IsNullOrBlank())
 			{
 				tokenSecret = String.Empty;
@@ -277,16 +293,19 @@ namespace RestSharp.Authenticators.OAuth
 			{
 				case OAuthSignatureMethod.HmacSha1:
 				{
-					var crypto = new HMACSHA1();
-					var key = "{0}&{1}".FormatWith(consumerSecret, tokenSecret);
+					using (var crypto = new HMACSHA1())
+					{
+						var key = "{0}&{1}".FormatWith(consumerSecret, tokenSecret);
 
-					crypto.Key = _encoding.GetBytes(key);
-					signature = signatureBase.HashWith(crypto);
+						crypto.Key = _encoding.GetBytes(key);
+						signature = signatureBase.HashWith(crypto);
+					}
 
 					break;
 				}
 				default:
-					throw new NotImplementedException("Only HMAC-SHA1 is currently supported.");
+					throw new NotImplementedException(
+						"The signature method '{0}' is not supported by this client; only HMAC-SHA1 is implemented.".FormatWith(signatureMethod));
 			}
 
 			var result = signatureTreatment == OAuthSignatureTreatment.Escaped

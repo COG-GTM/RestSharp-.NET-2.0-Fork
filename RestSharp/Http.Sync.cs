@@ -185,6 +185,7 @@ namespace RestSharp
 			var webRequest = (HttpWebRequest)WebRequest.Create(url);
 			webRequest.UseDefaultCredentials = false;
 			ServicePointManager.Expect100Continue = false;
+			ConfigureSecurityProtocol();
 
 			AppendHeaders(webRequest);
 			AppendCookies(webRequest);
