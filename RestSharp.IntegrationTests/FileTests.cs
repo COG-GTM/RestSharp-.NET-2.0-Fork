@@ -17,7 +17,7 @@ namespace RestSharp.IntegrationTests
 				var request = new RestRequest("Assets/Koala.jpg");
 				var response = client.DownloadData(request);
 
-				var expected = File.ReadAllBytes(Environment.CurrentDirectory + "\\Assets\\Koala.jpg");
+				var expected = File.ReadAllBytes(Path.Combine(Environment.CurrentDirectory, "Assets", "Koala.jpg"));
 				Assert.Equal(expected, response);
 			}
 		}
