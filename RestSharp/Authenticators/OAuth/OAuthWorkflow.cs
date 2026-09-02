@@ -391,4 +391,4 @@ namespace RestSharp.Authenticators.OAuth
 			}
 		}
 	}
-}
+}
