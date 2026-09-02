@@ -18,6 +18,8 @@ using System;
 using System.Net;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RestSharp
 {
@@ -64,6 +66,8 @@ namespace RestSharp
 		/// </summary>
 		/// <param name="request"></param>
 		RestRequestAsyncHandle ExecuteAsync<T>(IRestRequest request, Action<RestResponse<T>, RestRequestAsyncHandle> callback) where T : new();
+		Task<IRestResponse> ExecuteTaskAsync(IRestRequest request, CancellationToken cancellationToken = default(CancellationToken));
+		Task<IRestResponse<T>> ExecuteTaskAsync<T>(IRestRequest request, CancellationToken cancellationToken = default(CancellationToken)) where T : new();
 
 		/// <summary>
 		/// X509CertificateCollection to be sent with request

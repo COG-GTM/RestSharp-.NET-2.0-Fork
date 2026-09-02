@@ -1,16 +1,16 @@
-using System;
-using System.Net;
+﻿using System;
+
 namespace RestSharp
 {
 	public class RestRequestAsyncHandle
 	{
-		public HttpWebRequest WebRequest;
+		public HttpRequestHandle WebRequest;
 		
 		public RestRequestAsyncHandle()
 		{
 		}
 		
-		public RestRequestAsyncHandle(HttpWebRequest webRequest)
+		public RestRequestAsyncHandle(HttpRequestHandle webRequest)
 		{
 			WebRequest = webRequest;
 		}
@@ -22,4 +22,3 @@ namespace RestSharp
 		}
 	}
 }
-
