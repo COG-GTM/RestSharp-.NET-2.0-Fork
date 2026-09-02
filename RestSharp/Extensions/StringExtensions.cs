@@ -21,21 +21,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
-
-#if Net2
 using RestSharp.Contrib;
-#endif
-
-#if SILVERLIGHT
-using System.Windows.Browser;
-#endif
-
-#if WINDOWS_PHONE
-#endif
-
-#if FRAMEWORK || MONOTOUCH || MONODROID
-using RestSharp.Contrib;
-#endif
 
 
 namespace RestSharp.Extensions
@@ -66,12 +52,10 @@ namespace RestSharp.Extensions
 			return HttpUtility.HtmlEncode(input);
 		}
 
-#if FRAMEWORK
 		public static string HtmlAttributeEncode(this string input)
 		{
 			return HttpUtility.HtmlAttributeEncode(input);
 		}
-#endif
 
 		/// <summary>
 		/// Check that a string is not null or empty
