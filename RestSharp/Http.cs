@@ -19,18 +19,19 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using RestSharp.Extensions;
-
-#if WINDOWS_PHONE
-using RestSharp.Compression.ZLib;
-#endif
 
 namespace RestSharp
 {
 	/// <summary>
-	/// HttpWebRequest wrapper
+	/// HttpClient wrapper
 	/// </summary>
 	public partial class Http : IHttp, IHttpFactory
 	{
@@ -110,13 +111,10 @@ namespace RestSharp
 		/// Collection of files to be sent with request
 		/// </summary>
 		public IList<HttpFile> Files { get; private set; }
-#if !SILVERLIGHT
 		/// <summary>
 		/// Whether or not HTTP 3xx response redirects should be automatically followed
 		/// </summary>
 		public bool FollowRedirects { get; set; }
-#endif
-#if FRAMEWORK
 		/// <summary>
 		/// X509CertificateCollection to be sent with request
 		/// </summary>
@@ -125,7 +123,6 @@ namespace RestSharp
 		/// Maximum number of automatic redirects to follow if FollowRedirects is true
 		/// </summary>
 		public int? MaxRedirects { get; set; }
-#endif
 		/// <summary>
 		/// HTTP headers to be sent with request
 		/// </summary>
@@ -151,12 +148,17 @@ namespace RestSharp
 		/// </summary>
 		public Uri Url { get; set; }
 
-#if FRAMEWORK
 		/// <summary>
 		/// Proxy info to be sent with request
 		/// </summary>
 		public IWebProxy Proxy { get; set; }
-#endif
+		public int ReadWriteTimeout { get; set; }
+		public bool UseDefaultCredentials { get; set; }
+		public bool PreAuthenticate { get; set; }
+		public bool AlwaysMultipartFormData { get; set; }
+		public byte[] RequestBodyBytes { get; set; }
+		public Encoding Encoding { get; set; }
+		public Action<Stream> ResponseWriter { get; set; }
 
 		/// <summary>
 		/// Default constructor
@@ -167,24 +169,7 @@ namespace RestSharp
 			Files = new List<HttpFile>();
 			Parameters = new List<HttpParameter>();
 			Cookies = new List<HttpCookie>();
-
-			_restrictedHeaderActions = new Dictionary<string, Action<HttpWebRequest, string>>(StringComparer.OrdinalIgnoreCase);
-
-			AddSharedHeaderActions();
-			AddSyncHeaderActions();
-		}
-
-		partial void AddSyncHeaderActions();
-		partial void AddAsyncHeaderActions();
-		private void AddSharedHeaderActions()
-		{
-			_restrictedHeaderActions.Add("Accept", (r, v) => r.Accept = v);
-			_restrictedHeaderActions.Add("Content-Type", (r, v) => r.ContentType = v);
-			_restrictedHeaderActions.Add("Date", (r, v) => { /* Set by system */ });
-			_restrictedHeaderActions.Add("Host", (r, v) => { /* Set by system */ });
-#if FRAMEWORK
-			_restrictedHeaderActions.Add("Range", (r, v) => { AddRange(r, v); });
-#endif
+			Encoding = _defaultEncoding;
 		}
 
 		private const string FormBoundary = "-----------------------------28947758029299";
@@ -209,54 +194,6 @@ namespace RestSharp
 		{
 			return string.Format ("--{0}--{1}", FormBoundary, _lineBreak);
 		}
-		
-		private readonly IDictionary<string, Action<HttpWebRequest, string>> _restrictedHeaderActions;
-
-		// handle restricted headers the .NET way - thanks @dimebrain!
-		// http://msdn.microsoft.com/en-us/library/system.net.httpwebrequest.headers.aspx
-		private void AppendHeaders(HttpWebRequest webRequest)
-		{
-			foreach (var header in Headers)
-			{
-				if (_restrictedHeaderActions.ContainsKey(header.Name))
-				{
-					_restrictedHeaderActions[header.Name].Invoke(webRequest, header.Value);
-				}
-				else
-				{
-#if FRAMEWORK
-					webRequest.Headers.Add(header.Name, header.Value);
-#else
-					webRequest.Headers[header.Name] = header.Value;
-#endif
-				}
-			}
-		}
-
-		private void AppendCookies(HttpWebRequest webRequest)
-		{
-			webRequest.CookieContainer = this.CookieContainer ?? new CookieContainer();
-			foreach (var httpCookie in Cookies)
-			{
-#if FRAMEWORK
-                var cookie = new Cookie
-				{
-					Name = httpCookie.Name,
-					Value = httpCookie.Value,
-					Domain = webRequest.RequestUri.Host
-				};
-				webRequest.CookieContainer.Add(cookie);
-#else
-                var cookie = new Cookie
-				{
-					Name = httpCookie.Name,
-					Value = httpCookie.Value
-				};
-				var uri = webRequest.RequestUri;
-				webRequest.CookieContainer.Add(new Uri(string.Format("{0}://{1}", uri.Scheme, uri.Host)), cookie);
-#endif
-            }
-		}
 
 		private string EncodeParameters()
 		{
@@ -271,119 +208,314 @@ namespace RestSharp
 			return querystring.ToString();
 		}
 
-		private void PreparePostBody(HttpWebRequest webRequest)
+		public Task<HttpResponse> ExecuteAsync(string httpMethod, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			if(HasFiles)
-			{
-				webRequest.ContentType = GetMultipartFormContentType();
-			}
-			else if(HasParameters)
-			{
-				webRequest.ContentType = "application/x-www-form-urlencoded";
-				RequestBody = EncodeParameters();
-			}
-			else if(HasBody)
-			{
-				webRequest.ContentType = RequestContentType;
-			}
-		}
-		
-		private static void WriteStringTo(Stream stream, string toWrite)
-		{
-			var bytes = _defaultEncoding.GetBytes(toWrite);
-			stream.Write(bytes, 0, bytes.Length);
-		}
-		
-		private void WriteMultipartFormData(Stream requestStream)
-		{
-			foreach (var param in Parameters)
-			{
-				WriteStringTo(requestStream, GetMultipartFormData(param));
-			}
-
-			foreach (var file in Files)
-			{
-				// Add just the first part of this param, since we will write the file data directly to the Stream
-				WriteStringTo(requestStream, GetMultipartFileHeader(file));
-
-				// Write the file data directly to the Stream, rather than serializing it to a string.
-				file.Writer(requestStream);
-				WriteStringTo(requestStream, _lineBreak);
-			}
-
-			WriteStringTo(requestStream, GetMultipartFooter());
+			return ExecuteInternalAsync(httpMethod, cancellationToken);
 		}
 
-		private static void ExtractResponseData(HttpResponse response, HttpWebResponse webResponse)
+		private async Task<HttpResponse> ExecuteInternalAsync(string method, CancellationToken externalToken)
 		{
-			using (webResponse)
-			{
-#if FRAMEWORK
-				response.ContentEncoding = webResponse.ContentEncoding;
-				response.Server = webResponse.Server;
-#endif
-				response.ContentType = webResponse.ContentType;
-				response.ContentLength = webResponse.ContentLength;
-#if WINDOWS_PHONE
-                if (string.Equals(webResponse.Headers[HttpRequestHeader.ContentEncoding], "gzip", StringComparison.OrdinalIgnoreCase))
-                    response.RawBytes = new GZipStream(webResponse.GetResponseStream()).ReadAsBytes();
-                else
-                    response.RawBytes = webResponse.GetResponseStream().ReadAsBytes();
-#else
-                response.RawBytes = webResponse.GetResponseStream().ReadAsBytes();
-#endif
-				//response.Content = GetString(response.RawBytes);
-				response.StatusCode = webResponse.StatusCode;
-				response.StatusDescription = webResponse.StatusDescription;
-				response.ResponseUri = webResponse.ResponseUri;
-				response.ResponseStatus = ResponseStatus.Completed;
+			var response = new HttpResponse { ResponseStatus = ResponseStatus.None };
 
-				if (webResponse.Cookies != null)
+			try
+			{
+				CookieContainer container;
+				using (var handler = CreateHandler(out container))
+				using (var client = new HttpClient(handler, disposeHandler: false) { Timeout = System.Threading.Timeout.InfiniteTimeSpan })
+				using (var linked = CancellationTokenSource.CreateLinkedTokenSource(externalToken))
 				{
-					foreach (Cookie cookie in webResponse.Cookies)
+					if (Timeout > 0)
+						linked.CancelAfter(Timeout);
+
+					using (var request = BuildRequestMessage(method))
+					using (var httpResponse = await client.SendAsync(request, ResponseWriter != null ? HttpCompletionOption.ResponseHeadersRead : HttpCompletionOption.ResponseContentRead, linked.Token).ConfigureAwait(false))
 					{
-						response.Cookies.Add(new HttpCookie {
-							Comment = cookie.Comment,
-							CommentUri = cookie.CommentUri,
-							Discard = cookie.Discard,
-							Domain = cookie.Domain,
-							Expired = cookie.Expired,
-							Expires = cookie.Expires,
-							HttpOnly = cookie.HttpOnly,
-							Name = cookie.Name,
-							Path = cookie.Path,
-							Port = cookie.Port,
-							Secure = cookie.Secure,
-							TimeStamp = cookie.TimeStamp,
-							Value = cookie.Value,
-							Version = cookie.Version
-						});
+						await ExtractResponseDataAsync(response, httpResponse, linked.Token).ConfigureAwait(false);
+						response.ResponseStatus = ResponseStatus.Completed;
 					}
 				}
+			}
+			catch (OperationCanceledException ex)
+			{
+				response.ErrorMessage = ex.Message;
+				response.ErrorException = ex;
+				response.ResponseStatus = externalToken.IsCancellationRequested ? ResponseStatus.Aborted : ResponseStatus.TimedOut;
+			}
+			catch (Exception ex)
+			{
+				response.ErrorMessage = ex.Message;
+				response.ErrorException = ex;
+				response.ResponseStatus = ResponseStatus.Error;
+			}
 
-				foreach (var headerName in webResponse.Headers.AllKeys)
+			return response;
+		}
+
+		private HttpClientHandler CreateHandler(out CookieContainer container)
+		{
+			var handler = new HttpClientHandler
+			{
+				AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+				AllowAutoRedirect = FollowRedirects,
+				UseCookies = true,
+				PreAuthenticate = PreAuthenticate
+			};
+
+			if (FollowRedirects && MaxRedirects.HasValue)
+				handler.MaxAutomaticRedirections = MaxRedirects.Value;
+			if (Proxy != null)
+			{
+				handler.Proxy = Proxy;
+				handler.UseProxy = true;
+			}
+			if (Credentials != null)
+				handler.Credentials = Credentials;
+			handler.UseDefaultCredentials = UseDefaultCredentials;
+
+			container = CookieContainer ?? new CookieContainer();
+			foreach (var httpCookie in Cookies)
+			{
+				container.Add(new Cookie
 				{
-					var headerValue = webResponse.Headers[headerName];
-					response.Headers.Add(new HttpHeader { Name = headerName, Value = headerValue });
+					Name = httpCookie.Name,
+					Value = httpCookie.Value,
+					Domain = Url.Host
+				});
+			}
+			handler.CookieContainer = container;
+
+			if (ClientCertificates != null)
+				handler.ClientCertificates.AddRange(ClientCertificates);
+
+			return handler;
+		}
+
+		private HttpRequestMessage BuildRequestMessage(string method)
+		{
+			var request = new HttpRequestMessage(new HttpMethod(method), Url);
+			request.Headers.ExpectContinue = false;
+			if (UserAgent.HasValue())
+				request.Headers.TryAddWithoutValidation("User-Agent", UserAgent);
+
+			if (method == "POST" || method == "PUT" || method == "PATCH")
+			{
+				HttpContent content;
+				if (HasFiles || AlwaysMultipartFormData)
+				{
+					content = new RestMultipartContent(this);
+				}
+				else if (HasParameters)
+				{
+					RequestBody = EncodeParameters();
+					content = new ByteArrayContent(_defaultEncoding.GetBytes(RequestBody));
+					SetContentType(content, "application/x-www-form-urlencoded");
+				}
+				else if (RequestBodyBytes != null)
+				{
+					content = new ByteArrayContent(RequestBodyBytes);
+					SetContentType(content, RequestContentType);
+				}
+				else if (HasBody)
+				{
+					content = new ByteArrayContent((Encoding ?? _defaultEncoding).GetBytes(RequestBody));
+					SetContentType(content, RequestContentType);
+				}
+				else
+				{
+					content = new ByteArrayContent(new byte[0]);
 				}
 
-				webResponse.Close();
+				request.Content = content;
+			}
+
+			foreach (var header in Headers)
+				ApplyHeader(request, header.Name, header.Value);
+
+			return request;
+		}
+
+		private static void SetContentType(HttpContent content, string value)
+		{
+			if (!string.IsNullOrEmpty(value))
+			{
+				content.Headers.Remove("Content-Type");
+				content.Headers.TryAddWithoutValidation("Content-Type", value);
 			}
 		}
 
-#if FRAMEWORK
-		private void AddRange(HttpWebRequest r, string range)
+		private static void ApplyHeader(HttpRequestMessage request, string name, string value)
 		{
-			System.Text.RegularExpressions.Match m = System.Text.RegularExpressions.Regex.Match(range, "=(\\d+)-(\\d+)$");
-			if (!m.Success)
+			if (string.Equals(name, "Date", StringComparison.OrdinalIgnoreCase) ||
+				string.Equals(name, "Host", StringComparison.OrdinalIgnoreCase) ||
+				string.Equals(name, "Content-Length", StringComparison.OrdinalIgnoreCase))
+				return;
+
+			if (string.Equals(name, "Range", StringComparison.OrdinalIgnoreCase))
 			{
+				var match = Regex.Match(value, "=(\\d+)-(\\d+)$");
+				if (match.Success)
+					request.Headers.Range = new RangeHeaderValue(Convert.ToInt64(match.Groups[1].Value), Convert.ToInt64(match.Groups[2].Value));
 				return;
 			}
 
-			int from = Convert.ToInt32(m.Groups[1].Value);
-			int to = Convert.ToInt32(m.Groups[2].Value);
-			r.AddRange(from, to);
+			if (string.Equals(name, "Transfer-Encoding", StringComparison.OrdinalIgnoreCase))
+			{
+				if (string.Equals(value, "chunked", StringComparison.OrdinalIgnoreCase))
+					request.Headers.TransferEncodingChunked = true;
+				else
+				{
+					request.Headers.Remove(name);
+					request.Headers.TryAddWithoutValidation(name, value);
+				}
+				return;
+			}
+
+			switch (name.ToLowerInvariant())
+			{
+				case "content-type":
+				case "content-encoding":
+				case "content-language":
+				case "content-location":
+				case "content-md5":
+				case "content-range":
+				case "content-disposition":
+				case "expires":
+				case "last-modified":
+				case "allow":
+					if (request.Content != null)
+					{
+						request.Content.Headers.Remove(name);
+						request.Content.Headers.TryAddWithoutValidation(name, value);
+					}
+					return;
+			}
+
+			request.Headers.Remove(name);
+			request.Headers.TryAddWithoutValidation(name, value);
 		}
-#endif
+
+		private async Task ExtractResponseDataAsync(HttpResponse response, HttpResponseMessage msg, CancellationToken ct)
+		{
+			response.StatusCode = msg.StatusCode;
+			response.StatusDescription = msg.ReasonPhrase;
+			response.ResponseUri = msg.RequestMessage != null && msg.RequestMessage.RequestUri != null ? msg.RequestMessage.RequestUri : Url;
+			response.Server = msg.Headers.Server != null ? msg.Headers.Server.ToString() : null;
+
+			var content = msg.Content;
+			if (content == null)
+			{
+				response.RawBytes = new byte[0];
+			}
+			else
+			{
+				response.ContentType = content.Headers.ContentType != null ? content.Headers.ContentType.ToString() : null;
+				response.ContentEncoding = string.Join(",", content.Headers.ContentEncoding);
+				if (ResponseWriter != null)
+				{
+					using (var stream = await content.ReadAsStreamAsync().ConfigureAwait(false))
+						ResponseWriter(stream);
+				}
+				else
+				{
+					response.RawBytes = await content.ReadAsByteArrayAsync().ConfigureAwait(false);
+				}
+
+				response.ContentLength = content.Headers.ContentLength ?? (response.RawBytes != null ? response.RawBytes.LongLength : -1);
+			}
+
+			foreach (var header in msg.Headers)
+				response.Headers.Add(new HttpHeader { Name = header.Key, Value = string.Join(", ", header.Value) });
+			if (content != null)
+			{
+				foreach (var header in content.Headers)
+					response.Headers.Add(new HttpHeader { Name = header.Key, Value = string.Join(", ", header.Value) });
+			}
+
+			IEnumerable<string> setCookies;
+			if (msg.Headers.TryGetValues("Set-Cookie", out setCookies))
+			{
+				var jar = new CookieContainer();
+				foreach (var setCookie in setCookies)
+				{
+					try
+					{
+						jar.SetCookies(response.ResponseUri, setCookie);
+					}
+					catch (CookieException)
+					{
+					}
+				}
+
+				foreach (Cookie cookie in jar.GetCookies(response.ResponseUri))
+				{
+					response.Cookies.Add(new HttpCookie {
+						Comment = cookie.Comment,
+						CommentUri = cookie.CommentUri,
+						Discard = cookie.Discard,
+						Domain = cookie.Domain,
+						Expired = cookie.Expired,
+						Expires = cookie.Expires,
+						HttpOnly = cookie.HttpOnly,
+						Name = cookie.Name,
+						Path = cookie.Path,
+						Port = cookie.Port,
+						Secure = cookie.Secure,
+						TimeStamp = cookie.TimeStamp,
+						Value = cookie.Value,
+						Version = cookie.Version
+					});
+				}
+			}
+		}
+
+		private sealed class RestMultipartContent : HttpContent
+		{
+			private readonly Http _http;
+
+			public RestMultipartContent(Http http)
+			{
+				_http = http;
+				Headers.TryAddWithoutValidation("Content-Type", GetMultipartFormContentType());
+			}
+
+			protected override Task SerializeToStreamAsync(Stream stream, TransportContext context)
+			{
+				foreach (var param in _http.Parameters)
+					WriteStringTo(stream, GetMultipartFormData(param));
+
+				foreach (var file in _http.Files)
+				{
+					WriteStringTo(stream, GetMultipartFileHeader(file));
+					file.Writer(stream);
+					WriteStringTo(stream, _lineBreak);
+				}
+
+				WriteStringTo(stream, GetMultipartFooter());
+				return Task.CompletedTask;
+			}
+
+			protected override bool TryComputeLength(out long length)
+			{
+				length = 0;
+				foreach (var file in _http.Files)
+				{
+					length += _defaultEncoding.GetByteCount(GetMultipartFileHeader(file));
+					length += file.ContentLength;
+					length += _defaultEncoding.GetByteCount(_lineBreak);
+				}
+
+				foreach (var param in _http.Parameters)
+					length += _defaultEncoding.GetByteCount(GetMultipartFormData(param));
+
+				length += _defaultEncoding.GetByteCount(GetMultipartFooter());
+				return true;
+			}
+
+			private static void WriteStringTo(Stream stream, string value)
+			{
+				var bytes = _defaultEncoding.GetBytes(value);
+				stream.Write(bytes, 0, bytes.Length);
+			}
+		}
 	}
 }

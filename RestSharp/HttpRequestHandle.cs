@@ -14,18 +14,37 @@
 //   limitations under the License. 
 #endregion
 
+using System;
+using System.Threading;
 
 namespace RestSharp
 {
-	/// <summary>
-	/// Tries to Authenticate with the credentials of the currently logged in user
-	/// </summary>
-	public class NtlmAuthenticator : IAuthenticator
+	public class HttpRequestHandle
 	{
-		public void Authenticate(IRestClient client, IRestRequest request)
+		private readonly CancellationTokenSource _cts;
+
+		internal HttpRequestHandle(CancellationTokenSource cts)
 		{
-			request.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			_cts = cts;
+		}
+
+		public void Abort()
+		{
+			IsAborted = true;
+			try
+			{
+				_cts.Cancel();
+			}
+			catch (ObjectDisposedException)
+			{
+			}
+		}
+
+		public bool IsAborted { get; private set; }
+
+		internal CancellationToken Token
+		{
+			get { return _cts.Token; }
 		}
 	}
 }
-

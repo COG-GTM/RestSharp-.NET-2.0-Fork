@@ -31,9 +31,21 @@ namespace RestSharp.IntegrationTests.Helpers
 
 				_processor = new Thread(() =>
 				{
-					var context = _listener.GetContext();
-					_handler(context);
-					context.Response.Close();
+					try
+					{
+						var context = _listener.GetContext();
+						_handler(context);
+						context.Response.Close();
+					}
+					catch(HttpListenerException)
+					{
+					}
+					catch(ObjectDisposedException)
+					{
+					}
+					catch(InvalidOperationException)
+					{
+					}
 				}) { Name = "WebServer" };
 				_processor.Start();
 			}
@@ -41,7 +53,6 @@ namespace RestSharp.IntegrationTests.Helpers
 
 		public void Dispose()
 		{
-			_processor.Abort();
 			_listener.Stop();
 			_listener.Close();
 		}

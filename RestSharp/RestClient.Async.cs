@@ -20,6 +20,7 @@ using System.Linq;
 using System.Threading;
 using System.Text;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace RestSharp
 {
@@ -41,7 +42,7 @@ namespace RestSharp
 
 			ConfigureHttp(request, http);
 
-			HttpWebRequest webRequest = null;
+			HttpRequestHandle webRequest = null;
 			var asyncHandle = new RestRequestAsyncHandle();
 
 			Action<HttpResponse> response_cb = r => ProcessResponse(r, asyncHandle, callback);
@@ -80,6 +81,28 @@ namespace RestSharp
 			
 			asyncHandle.WebRequest = webRequest;
 			return asyncHandle;
+		}
+
+		public virtual async Task<IRestResponse> ExecuteTaskAsync(IRestRequest request, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			var http = HttpFactory.Create();
+			AuthenticateIfNeeded(this, request);
+			var accepts = string.Join(", ", AcceptTypes.ToArray());
+			AddDefaultParameter("Accept", accepts, ParameterType.HttpHeader);
+			ConfigureHttp(request, http);
+			ConfigureProxy(http);
+			var httpResponse = await http.ExecuteAsync(request.Method.ToString(), cancellationToken).ConfigureAwait(false);
+			var restResponse = ConvertToRestResponse(httpResponse);
+			restResponse.Request = request;
+			request.IncreaseNumAttempts();
+			return restResponse;
+		}
+
+		public virtual async Task<IRestResponse<T>> ExecuteTaskAsync<T>(IRestRequest request, CancellationToken cancellationToken = default(CancellationToken)) where T : new()
+		{
+			var response = (RestResponse)await ExecuteTaskAsync(request, cancellationToken).ConfigureAwait(false);
+			if (response.ResponseStatus == ResponseStatus.Aborted) return (RestResponse<T>)response;
+			return Deserialize<T>(request, response);
 		}
 
 		private void ProcessResponse(HttpResponse httpResponse, RestRequestAsyncHandle asyncHandle, Action<RestResponse, RestRequestAsyncHandle> callback)
