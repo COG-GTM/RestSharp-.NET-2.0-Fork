@@ -1,5 +1,4 @@
-﻿#region License
-//   Copyright 2010 John Sheehan
+﻿//   Copyright 2010 John Sheehan
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -12,7 +11,6 @@
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and
 //   limitations under the License. 
-#endregion
 
 using System;
 using System.Collections.Generic;
@@ -28,13 +26,9 @@ namespace RestSharp
 		ICredentials Credentials { get; set; }
 		string UserAgent { get; set; }
 		int Timeout { get; set; }
-#if !SILVERLIGHT
 		bool FollowRedirects { get; set; }
-#endif
-#if FRAMEWORK
 		X509CertificateCollection ClientCertificates { get; set; }
 		int? MaxRedirects { get; set; }
-#endif
 
 		IList<HttpHeader> Headers { get; }
 		IList<HttpParameter> Parameters { get; }
@@ -53,7 +47,6 @@ namespace RestSharp
 		HttpWebRequest PutAsync(Action<HttpResponse> action);
 		HttpWebRequest PatchAsync(Action<HttpResponse> action);
 
-#if FRAMEWORK
 		HttpResponse Delete();
 		HttpResponse Get();
 		HttpResponse Head();
@@ -63,6 +56,5 @@ namespace RestSharp
 		HttpResponse Patch();
 
 		IWebProxy Proxy { get; set; }
-#endif
 	}
 }

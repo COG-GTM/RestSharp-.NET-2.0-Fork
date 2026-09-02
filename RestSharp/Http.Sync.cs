@@ -1,5 +1,4 @@
-﻿#region License
-//   Copyright 2010 John Sheehan
+﻿//   Copyright 2010 John Sheehan
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -12,15 +11,11 @@
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and
 //   limitations under the License. 
-#endregion
 
-#if FRAMEWORK
 using System;
 using System.Net;
 
-#if !MONOTOUCH && !MONODROID
 using System.Web;
-#endif
 
 using RestSharp.Extensions;
 
@@ -234,4 +229,3 @@ namespace RestSharp
 		}
 	}
 }
-#endif

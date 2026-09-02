@@ -1,5 +1,4 @@
-﻿#region License
-//   Copyright 2010 John Sheehan
+﻿//   Copyright 2010 John Sheehan
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -12,7 +11,6 @@
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and
 //   limitations under the License. 
-#endregion
 
 using System;
 using System.Collections.Generic;
@@ -41,9 +39,6 @@ namespace RestSharp
 		/// </summary>
 		public RestClient()
 		{
-#if WINDOWS_PHONE
-			UseSynchronizationContext = true;
-#endif
 			ContentHandlers = new Dictionary<string, IDeserializer>();
 			AcceptTypes = new List<string>();
 			DefaultParameters = new List<Parameter>();
@@ -215,12 +210,10 @@ namespace RestSharp
 		/// </summary>
 		public int? MaxRedirects { get; set; }
 
-#if FRAMEWORK
 		/// <summary>
 		/// X509CertificateCollection to be sent with request
 		/// </summary>
 		public X509CertificateCollection ClientCertificates { get; set; }
-#endif
 
 		/// <summary>
 		/// Default is true. Determine whether or not requests that result in 
@@ -371,17 +364,13 @@ namespace RestSharp
 
 			http.Timeout = request.Timeout == 0 ? Timeout : request.Timeout;
 
-#if !SILVERLIGHT
 			http.FollowRedirects = FollowRedirects;
-#endif
-#if FRAMEWORK
 			if (ClientCertificates != null)
 			{
 				http.ClientCertificates = ClientCertificates;
 			}
 
 			http.MaxRedirects = MaxRedirects;
-#endif
 
 			if(request.Credentials != null)
 			{

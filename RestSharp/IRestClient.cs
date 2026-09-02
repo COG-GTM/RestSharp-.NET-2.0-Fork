@@ -1,5 +1,4 @@
-﻿#region License
-//   Copyright 2010 John Sheehan
+﻿//   Copyright 2010 John Sheehan
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -12,7 +11,6 @@
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and
 //   limitations under the License. 
-#endregion
 
 using System;
 using System.Net;
@@ -65,7 +63,6 @@ namespace RestSharp
 		/// <param name="request"></param>
 		RestRequestAsyncHandle ExecuteAsync<T>(IRestRequest request, Action<RestResponse<T>, RestRequestAsyncHandle> callback) where T : new();
 
-#if FRAMEWORK
 		/// <summary>
 		/// X509CertificateCollection to be sent with request
 		/// </summary>
@@ -74,7 +71,6 @@ namespace RestSharp
 		RestResponse<T> Execute<T>(IRestRequest request) where T : new();
 		
 		IWebProxy Proxy { get; set; }
-#endif
 
 		Uri BuildUri(IRestRequest request);
 	}

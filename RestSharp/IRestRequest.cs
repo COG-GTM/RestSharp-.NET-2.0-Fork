@@ -1,4 +1,3 @@
-#region License
 //   Copyright 2010 John Sheehan
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +11,6 @@
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and
 //   limitations under the License. 
-#endregion
 
 using System;
 using System.Collections.Generic;
@@ -107,7 +105,6 @@ namespace RestSharp
 		/// </remarks>
 		int Attempts { get; }
 
-#if FRAMEWORK
 		/// <summary>
 		/// Adds a file to the Files collection to be included with a POST or PUT request 
 		/// (other methods do not support file uploads).
@@ -135,7 +132,6 @@ namespace RestSharp
 		/// <param name="contentType">The MIME type of the file to upload</param>
 		/// <returns>This request</returns>
 		IRestRequest AddFile (string name, byte[] bytes, string fileName, string contentType);
-#endif
 
 		/// <summary>
 		/// Serializes obj to format specified by RequestFormat, but passes xmlNamespace if using the default XmlSerializer
