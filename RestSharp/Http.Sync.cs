@@ -14,17 +14,13 @@
 //   limitations under the License. 
 #endregion
 
-using System;
-using System.Net;
-
-using System.Web;
-
-using RestSharp.Extensions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RestSharp
 {
 	/// <summary>
-	/// HttpWebRequest wrapper (sync methods)
+	/// HttpClient wrapper (sync methods)
 	/// </summary>
 	public partial class Http
 	{
@@ -33,7 +29,7 @@ namespace RestSharp
 		/// </summary>
 		public HttpResponse Post()
 		{
-			return PostPutInternal("POST");
+			return Execute("POST");
 		}
 
 		/// <summary>
@@ -41,7 +37,7 @@ namespace RestSharp
 		/// </summary>
 		public HttpResponse Put()
 		{
-			return PostPutInternal("PUT");
+			return Execute("PUT");
 		}
 
 		/// <summary>
@@ -49,7 +45,7 @@ namespace RestSharp
 		/// </summary>
 		public HttpResponse Get()
 		{
-			return GetStyleMethodInternal("GET");
+			return Execute("GET");
 		}
 
 		/// <summary>
@@ -57,7 +53,7 @@ namespace RestSharp
 		/// </summary>
 		public HttpResponse Head()
 		{
-			return GetStyleMethodInternal("HEAD");
+			return Execute("HEAD");
 		}
 
 		/// <summary>
@@ -65,7 +61,7 @@ namespace RestSharp
 		/// </summary>
 		public HttpResponse Options()
 		{
-			return GetStyleMethodInternal("OPTIONS");
+			return Execute("OPTIONS");
 		}
 
 		/// <summary>
@@ -73,7 +69,7 @@ namespace RestSharp
 		/// </summary>
 		public HttpResponse Delete()
 		{
-			return GetStyleMethodInternal("DELETE");
+			return Execute("DELETE");
 		}
 
 		/// <summary>
@@ -81,153 +77,12 @@ namespace RestSharp
 		/// </summary>
 		public HttpResponse Patch()
 		{
-			return PostPutInternal("PATCH");
+			return Execute("PATCH");
 		}
 
-		private HttpResponse GetStyleMethodInternal(string method)
+		private HttpResponse Execute(string method)
 		{
-			var webRequest = ConfigureWebRequest(method, Url);
-
-			return GetResponse(webRequest);
-		}
-
-		private HttpResponse PostPutInternal(string method)
-		{
-			var webRequest = ConfigureWebRequest(method, Url);
-
-			PreparePostData(webRequest);
-
-			WriteRequestBody(webRequest);
-			return GetResponse(webRequest);
-		}
-
-		partial void AddSyncHeaderActions()
-		{
-			_restrictedHeaderActions.Add("Connection", (r, v) => r.Connection = v);
-			_restrictedHeaderActions.Add("Content-Length", (r, v) => r.ContentLength = Convert.ToInt64(v));
-			_restrictedHeaderActions.Add("Expect", (r, v) => r.Expect = v);
-			_restrictedHeaderActions.Add("If-Modified-Since", (r, v) => r.IfModifiedSince = Convert.ToDateTime(v));
-			_restrictedHeaderActions.Add("Referer", (r, v) => r.Referer = v);
-			_restrictedHeaderActions.Add("Transfer-Encoding", (r, v) => { r.TransferEncoding = v; r.SendChunked = true; });
-			_restrictedHeaderActions.Add("User-Agent", (r, v) => r.UserAgent = v);
-		}
-
-		private HttpResponse GetResponse(HttpWebRequest request)
-		{
-			var response = new HttpResponse();
-			response.ResponseStatus = ResponseStatus.None;
-
-			try
-			{
-				var webResponse = GetRawResponse(request);
-				ExtractResponseData(response, webResponse);
-			}
-			catch (Exception ex)
-			{
-				response.ErrorMessage = ex.Message;
-				response.ErrorException = ex;
-				response.ResponseStatus = ResponseStatus.Error;
-			}
-
-			return response;
-		}
-
-		private static HttpWebResponse GetRawResponse(HttpWebRequest request)
-		{
-			try
-			{
-				return (HttpWebResponse)request.GetResponse();
-			}
-			catch (WebException ex)
-			{
-				if (ex.Response is HttpWebResponse)
-				{
-					return ex.Response as HttpWebResponse;
-				}
-				throw;
-			}
-		}
-
-		private void PreparePostData(HttpWebRequest webRequest)
-		{
-			if (HasFiles)
-			{
-				webRequest.ContentType = GetMultipartFormContentType();
-				using (var requestStream = webRequest.GetRequestStream())
-				{
-					WriteMultipartFormData(requestStream);
-				}
-			}
-
-			PreparePostBody(webRequest);
-		}
-
-		private void WriteRequestBody(HttpWebRequest webRequest)
-		{
-			if (!HasBody)
-				return;
-
-			var bytes = _defaultEncoding.GetBytes(RequestBody);
-
-			webRequest.ContentLength = bytes.Length;
-
-			using (var requestStream = webRequest.GetRequestStream())
-			{
-				requestStream.Write(bytes, 0, bytes.Length);
-			}
-		}
-
-		private HttpWebRequest ConfigureWebRequest(string method, Uri url)
-		{
-			var webRequest = (HttpWebRequest)WebRequest.Create(url);
-			webRequest.UseDefaultCredentials = false;
-			ServicePointManager.Expect100Continue = false;
-
-			AppendHeaders(webRequest);
-			AppendCookies(webRequest);
-
-			webRequest.Method = method;
-
-			// make sure Content-Length header is always sent since default is -1
-			if(!HasFiles)
-			{
-				webRequest.ContentLength = 0;
-			}
-
-			webRequest.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip | DecompressionMethods.None;
-
-			if(ClientCertificates != null)
-			{
-				webRequest.ClientCertificates = ClientCertificates;
-			}
-
-			if(UserAgent.HasValue())
-			{
-				webRequest.UserAgent = UserAgent;
-			}
-
-			if(Timeout != 0)
-			{
-				webRequest.Timeout = Timeout;
-			}
-
-			if(Credentials != null)
-			{
-				webRequest.Credentials = Credentials;
-			}
-
-			if(Proxy != null)
-			{
-				webRequest.Proxy = Proxy;
-			}
-
-			webRequest.AllowAutoRedirect = FollowRedirects;
-			if(FollowRedirects && MaxRedirects.HasValue)
-			{
-				webRequest.MaximumAutomaticRedirections = MaxRedirects.Value; 
-			}
-
-			return webRequest;
+			return Task.Run(() => ExecuteInternalAsync(method, CancellationToken.None)).GetAwaiter().GetResult();
 		}
 	}
 }

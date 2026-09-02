@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RestSharp.Authenticators.OAuth.Extensions;
-using RestSharp.Contrib;
+using RestSharp.Extensions;
 
 namespace RestSharp.Authenticators.OAuth
 {
@@ -211,7 +211,7 @@ namespace RestSharp.Authenticators.OAuth
 
 			// Include url parameters in query pool
 			var uri = new Uri(url);
-			var urlParameters = HttpUtility.ParseQueryString(uri.Query);
+			var urlParameters = HttpUtilityCompat.ParseQueryString(uri.Query);
 
 			foreach (var parameter in urlParameters.AllKeys)
 			{
@@ -391,4 +391,4 @@ namespace RestSharp.Authenticators.OAuth
 			}
 		}
 	}
-}
+}

@@ -4,7 +4,7 @@ using System.Text;
 using RestSharp.Authenticators.OAuth;
 using RestSharp.Authenticators.OAuth.Extensions;
 
-using RestSharp.Contrib;
+using System.Net;
 
 
 namespace RestSharp.Authenticators
@@ -187,7 +187,7 @@ namespace RestSharp.Authenticators
 					request.AddHeader("Authorization", GetAuthorizationHeader(parameters));
 					break;
 				case OAuthParameterHandling.UrlOrPostParameters:
-					parameters.Add("oauth_signature", HttpUtility.UrlDecode(oauth.Signature));
+					parameters.Add("oauth_signature", WebUtility.UrlDecode(oauth.Signature));
 					foreach (var parameter in parameters)
 					{
 						request.AddParameter(parameter.Name, parameter.Value);
