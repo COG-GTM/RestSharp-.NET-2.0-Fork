@@ -21,7 +21,6 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
-using RestSharp.Contrib;
 
 
 namespace RestSharp.Extensions
@@ -30,7 +29,7 @@ namespace RestSharp.Extensions
 	{
 		public static string UrlDecode(this string input)
 		{
-			return HttpUtility.UrlDecode(input);
+			return WebUtility.UrlDecode(input);
 		}
 
 		/// <summary>
@@ -44,17 +43,17 @@ namespace RestSharp.Extensions
 
 		public static string HtmlDecode(this string input)
 		{
-			return HttpUtility.HtmlDecode(input);
+			return WebUtility.HtmlDecode(input);
 		}
 
 		public static string HtmlEncode(this string input)
 		{
-			return HttpUtility.HtmlEncode(input);
+			return WebUtility.HtmlEncode(input);
 		}
 
 		public static string HtmlAttributeEncode(this string input)
 		{
-			return HttpUtility.HtmlAttributeEncode(input);
+			return HttpUtilityCompat.HtmlAttributeEncode(input);
 		}
 
 		/// <summary>
