@@ -4,11 +4,7 @@ using System.Text;
 using RestSharp.Authenticators.OAuth;
 using RestSharp.Authenticators.OAuth.Extensions;
 
-#if WINDOWS_PHONE
-using System.Net;
-#else
 using RestSharp.Contrib;
-#endif
 
 
 namespace RestSharp.Authenticators
