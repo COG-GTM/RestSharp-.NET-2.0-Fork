@@ -28,13 +28,9 @@ namespace RestSharp
 		ICredentials Credentials { get; set; }
 		string UserAgent { get; set; }
 		int Timeout { get; set; }
-#if !SILVERLIGHT
 		bool FollowRedirects { get; set; }
-#endif
-#if FRAMEWORK
 		X509CertificateCollection ClientCertificates { get; set; }
 		int? MaxRedirects { get; set; }
-#endif
 
 		IList<HttpHeader> Headers { get; }
 		IList<HttpParameter> Parameters { get; }
@@ -53,7 +49,6 @@ namespace RestSharp
 		HttpWebRequest PutAsync(Action<HttpResponse> action);
 		HttpWebRequest PatchAsync(Action<HttpResponse> action);
 
-#if FRAMEWORK
 		HttpResponse Delete();
 		HttpResponse Get();
 		HttpResponse Head();
@@ -63,6 +58,5 @@ namespace RestSharp
 		HttpResponse Patch();
 
 		IWebProxy Proxy { get; set; }
-#endif
 	}
 }
