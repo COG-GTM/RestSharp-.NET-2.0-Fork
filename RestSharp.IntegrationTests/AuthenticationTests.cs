@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Text;
 using RestSharp.Authenticators;
-using RestSharp.Contrib;
+using RestSharp.Extensions;
 using RestSharp.IntegrationTests.Helpers;
 using Xunit;
 
@@ -49,7 +49,7 @@ namespace RestSharp.IntegrationTests
 			Assert.NotNull(response);
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-			var qs = HttpUtility.ParseQueryString(response.Content);
+			var qs = HttpUtilityCompat.ParseQueryString(response.Content);
 			var oauth_token = qs["oauth_token"];
 			var oauth_token_secret = qs["oauth_token_secret"];
 			Assert.NotNull(oauth_token);
@@ -69,7 +69,7 @@ namespace RestSharp.IntegrationTests
 			Assert.NotNull(response);
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-			qs = HttpUtility.ParseQueryString(response.Content);
+			qs = HttpUtilityCompat.ParseQueryString(response.Content);
 			oauth_token = qs["oauth_token"];
 			oauth_token_secret = qs["oauth_token_secret"];
 			Assert.NotNull(oauth_token);

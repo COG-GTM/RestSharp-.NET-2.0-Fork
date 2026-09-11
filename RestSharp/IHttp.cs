@@ -16,9 +16,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.IO;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RestSharp
 {
@@ -28,13 +31,16 @@ namespace RestSharp
 		ICredentials Credentials { get; set; }
 		string UserAgent { get; set; }
 		int Timeout { get; set; }
-#if !SILVERLIGHT
 		bool FollowRedirects { get; set; }
-#endif
-#if FRAMEWORK
 		X509CertificateCollection ClientCertificates { get; set; }
 		int? MaxRedirects { get; set; }
-#endif
+		int ReadWriteTimeout { get; set; }
+		bool UseDefaultCredentials { get; set; }
+		bool PreAuthenticate { get; set; }
+		bool AlwaysMultipartFormData { get; set; }
+		byte[] RequestBodyBytes { get; set; }
+		Encoding Encoding { get; set; }
+		Action<Stream> ResponseWriter { get; set; }
 
 		IList<HttpHeader> Headers { get; }
 		IList<HttpParameter> Parameters { get; }
@@ -45,15 +51,15 @@ namespace RestSharp
 
 		Uri Url { get; set; }
 
-		HttpWebRequest DeleteAsync(Action<HttpResponse> action);
-		HttpWebRequest GetAsync(Action<HttpResponse> action);
-		HttpWebRequest HeadAsync(Action<HttpResponse> action);
-		HttpWebRequest OptionsAsync(Action<HttpResponse> action);
-		HttpWebRequest PostAsync(Action<HttpResponse> action);
-		HttpWebRequest PutAsync(Action<HttpResponse> action);
-		HttpWebRequest PatchAsync(Action<HttpResponse> action);
+		HttpRequestHandle DeleteAsync(Action<HttpResponse> action);
+		HttpRequestHandle GetAsync(Action<HttpResponse> action);
+		HttpRequestHandle HeadAsync(Action<HttpResponse> action);
+		HttpRequestHandle OptionsAsync(Action<HttpResponse> action);
+		HttpRequestHandle PostAsync(Action<HttpResponse> action);
+		HttpRequestHandle PutAsync(Action<HttpResponse> action);
+		HttpRequestHandle PatchAsync(Action<HttpResponse> action);
+		Task<HttpResponse> ExecuteAsync(string httpMethod, CancellationToken cancellationToken = default(CancellationToken));
 
-#if FRAMEWORK
 		HttpResponse Delete();
 		HttpResponse Get();
 		HttpResponse Head();
@@ -63,6 +69,5 @@ namespace RestSharp
 		HttpResponse Patch();
 
 		IWebProxy Proxy { get; set; }
-#endif
 	}
 }
