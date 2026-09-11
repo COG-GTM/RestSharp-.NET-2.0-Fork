@@ -45,7 +45,7 @@ namespace RestSharp
 			HttpRequestHandle webRequest = null;
 			var asyncHandle = new RestRequestAsyncHandle();
 
-			Action<HttpResponse> response_cb = r => ProcessResponse(r, asyncHandle, callback);
+			Action<HttpResponse> response_cb = r => ProcessResponse(r, request, asyncHandle, callback);
 
 			if (UseSynchronizationContext && SynchronizationContext.Current != null) {
 				var ctx = SynchronizationContext.Current;
@@ -105,9 +105,11 @@ namespace RestSharp
 			return Deserialize<T>(request, response);
 		}
 
-		private void ProcessResponse(HttpResponse httpResponse, RestRequestAsyncHandle asyncHandle, Action<RestResponse, RestRequestAsyncHandle> callback)
+		private void ProcessResponse(HttpResponse httpResponse, IRestRequest request, RestRequestAsyncHandle asyncHandle, Action<RestResponse, RestRequestAsyncHandle> callback)
 		{
 			var restResponse = ConvertToRestResponse(httpResponse);
+			restResponse.Request = request;
+			request.IncreaseNumAttempts();
 			callback(restResponse, asyncHandle);
 		}
 

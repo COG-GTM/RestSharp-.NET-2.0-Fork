@@ -268,9 +268,10 @@ namespace RestSharp
 				handler.Proxy = Proxy;
 				handler.UseProxy = true;
 			}
-			if (Credentials != null)
+			if (UseDefaultCredentials)
+				handler.UseDefaultCredentials = true;
+			else if (Credentials != null)
 				handler.Credentials = Credentials;
-			handler.UseDefaultCredentials = UseDefaultCredentials;
 
 			container = CookieContainer ?? new CookieContainer();
 			foreach (var httpCookie in Cookies)
@@ -382,11 +383,10 @@ namespace RestSharp
 				case "expires":
 				case "last-modified":
 				case "allow":
-					if (request.Content != null)
-					{
-						request.Content.Headers.Remove(name);
-						request.Content.Headers.TryAddWithoutValidation(name, value);
-					}
+					if (request.Content == null)
+						request.Content = new ByteArrayContent(new byte[0]);
+					request.Content.Headers.Remove(name);
+					request.Content.Headers.TryAddWithoutValidation(name, value);
 					return;
 			}
 
@@ -417,7 +417,12 @@ namespace RestSharp
 				}
 				else
 				{
-					response.RawBytes = await content.ReadAsByteArrayAsync().ConfigureAwait(false);
+					using (var stream = await content.ReadAsStreamAsync().ConfigureAwait(false))
+					using (var ms = new MemoryStream())
+					{
+						await stream.CopyToAsync(ms, 81920, ct).ConfigureAwait(false);
+						response.RawBytes = ms.ToArray();
+					}
 				}
 
 				response.ContentLength = content.Headers.ContentLength ?? (response.RawBytes != null ? response.RawBytes.LongLength : -1);

@@ -66,8 +66,14 @@ namespace RestSharp
 			var handle = new HttpRequestHandle(cts);
 			ExecuteInternalAsync(method, handle.Token).ContinueWith(t =>
 			{
-				callback(t.Result);
-				cts.Dispose();
+				try
+				{
+					callback(t.Result);
+				}
+				finally
+				{
+					cts.Dispose();
+				}
 			}, TaskScheduler.Default);
 			return handle;
 		}
