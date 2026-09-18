@@ -32,6 +32,8 @@ SerializerTest*/
 *.csproj.user
 *.resharper*
 Download/
+#Ignore restored NuGet packages
+packages/
 #Ignore files from MonoDevelop
 *.pidb
 *.userprefs
