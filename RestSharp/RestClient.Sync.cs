@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using RestSharp.Deserializers;
+﻿using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RestSharp
 {
 	public partial class RestClient
 	{
-
 		/// <summary>
 		/// Proxy to use for requests made by this client instance.
-		/// Passed on to underying WebRequest if set.
 		/// </summary>
 		public IWebProxy Proxy { get; set; }
 
@@ -23,8 +18,7 @@ namespace RestSharp
 		/// <returns>Response data</returns>
 		public byte[] DownloadData(IRestRequest request)
 		{
-			var response = Execute(request);
-			return response.RawBytes;
+			return RunSync(() => DownloadDataAsync(request));
 		}
 
 		/// <summary>
@@ -34,28 +28,7 @@ namespace RestSharp
 		/// <returns>RestResponse</returns>
 		public virtual RestResponse Execute(IRestRequest request)
 		{
-			AuthenticateIfNeeded(this, request);
-
-			// add Accept header based on registered deserializers
-			var accepts = string.Join(", ", AcceptTypes.ToArray());
-			AddDefaultParameter("Accept", accepts, ParameterType.HttpHeader);
-
-			var response = new RestResponse();
-			try
-			{
-				response = GetResponse(request);
-				response.Request = request;
-				response.Request.IncreaseNumAttempts();
-
-			}
-			catch (Exception ex)
-			{
-				response.ResponseStatus = ResponseStatus.Error;
-				response.ErrorMessage = ex.Message;
-				response.ErrorException = ex;
-			}
-
-			return response;
+			return RunSync(() => ExecuteAsync(request));
 		}
 
 		/// <summary>
@@ -66,45 +39,14 @@ namespace RestSharp
 		/// <returns>RestResponse[[T]] with deserialized data in Data property</returns>
 		public virtual RestResponse<T> Execute<T>(IRestRequest request) where T : new()
 		{
-			var raw = Execute(request);
-			return Deserialize<T>(request, raw);
+			return RunSync(() => ExecuteAsync<T>(request));
 		}
-		
-		private RestResponse GetResponse(IRestRequest request)
+
+		// Runs the asynchronous pipeline on the thread pool so that a captured
+		// SynchronizationContext (WinForms, WPF, ASP.NET classic) cannot deadlock the caller.
+		private static TResult RunSync<TResult>(System.Func<Task<TResult>> operation)
 		{
-			var http = HttpFactory.Create();
-
-			ConfigureHttp(request, http);
-			ConfigureProxy(http);
-
-			var httpResponse = new HttpResponse();
-
-			switch (request.Method) {
-				case Method.GET:
-					httpResponse = http.Get();
-					break;
-				case Method.POST:
-					httpResponse = http.Post();
-					break;
-				case Method.PUT:
-					httpResponse = http.Put();
-					break;
-				case Method.DELETE:
-					httpResponse = http.Delete();
-					break;
-				case Method.HEAD:
-					httpResponse = http.Head();
-					break;
-				case Method.OPTIONS:
-					httpResponse = http.Options();
-					break;
-				case Method.PATCH:
-					httpResponse = http.Patch();
-					break;
-			}
-
-			var restResponse = ConvertToRestResponse(httpResponse);
-			return restResponse;
+			return Task.Run(operation).GetAwaiter().GetResult();
 		}
 
 		private void ConfigureProxy(IHttp http)
