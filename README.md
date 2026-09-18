@@ -1,17 +1,24 @@
 # RestSharp - Simple .NET REST Client
 
-### [Official Site/Blog][1] - [@RestSharp][2]  
-### Please use the [Google Group][3] for feature requests and troubleshooting usage.
-### License: Apache License 2.0  
+License: Apache License 2.0
+
+This is a modernized fork of the original RestSharp 102.x source. The dead platform
+targets (Silverlight, Windows Phone 7/7.1, MonoTouch, MonoDroid and the hand-maintained
+.NET 2.0 fork) have been removed, the transport is built on `HttpClient`, and the
+package is produced with `dotnet pack`.
+
+### Supported frameworks
+
+* `netstandard2.0`
+* `net8.0`
 
 ### Features
 
-* Supports .NET 3.5+
 * Automatic XML and JSON deserialization
 * Supports custom serialization and deserialization via ISerializer and IDeserializer
 * Fuzzy element name matching ('product_id' in XML/JSON will match C# property named 'ProductId')
 * Automatic detection of type of content returned
-* GET, POST, PUT, HEAD, OPTIONS, DELETE supported
+* GET, POST, PUT, PATCH, HEAD, OPTIONS, DELETE supported
 * oAuth 1, oAuth 2, Basic, NTLM and Parameter-based Authenticators included
 * Supports custom authentication schemes via IAuthenticator
 * Multi-part form/file uploads
@@ -38,31 +45,30 @@ request.AddHeader("header", "value");
 request.AddFile(path);
 
 // execute the request
-RestResponse response = client.Execute(request);
+RestResponse response = await client.ExecuteAsync(request);
 var content = response.Content; // raw content as string
 
 // or automatically deserialize result
 // return content type is sniffed but can be explicitly set via RestClient.AddHandler();
-RestResponse<Person> response2 = client.Execute<Person>(request);
+RestResponse<Person> response2 = await client.ExecuteAsync<Person>(request);
 var name = response2.Data.Name;
 
 // or download and save file to disk
-client.DownloadData(request).SaveAs(path);
+(await client.DownloadDataAsync(request)).SaveAs(path);
 
-// easy async support
-client.ExecuteAsync(request, response => {
-    Console.WriteLine(response.Content);
-});
+// cancel a request with a CancellationToken
+var cancellation = new CancellationTokenSource();
+var task = client.ExecuteAsync(request, cancellation.Token);
+cancellation.Cancel(); // the response comes back with ResponseStatus.Aborted
 
-// async with deserialization
-var asyncHandle = client.ExecuteAsync<Person>(request, response => {
-    Console.WriteLine(response.Data.Name);
-});
-
-// abort the request on demand
-asyncHandle.Abort();
+// synchronous overloads are still available
+RestResponse sync = client.Execute(request);
 ```
- 
-  [1]: http://restsharp.org
-  [2]: http://twitter.com/RestSharp
-  [3]: http://groups.google.com/group/RestSharp
+
+### Building
+
+```bash
+dotnet build RestSharp.sln
+dotnet test RestSharp.sln
+dotnet pack RestSharp/RestSharp.csproj --configuration Release --output artifacts
+```

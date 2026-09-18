@@ -1,0 +1,27 @@
+version: 2.1
+
+jobs:
+  build-and-test:
+    docker:
+      - image: mcr.microsoft.com/dotnet/sdk:8.0
+    steps:
+      - checkout
+      - run:
+          name: Restore
+          command: dotnet restore RestSharp.sln
+      - run:
+          name: Build
+          command: dotnet build RestSharp.sln --configuration Release --no-restore
+      - run:
+          name: Test
+          command: dotnet test RestSharp.sln --configuration Release --no-build
+      - run:
+          name: Pack
+          command: dotnet pack RestSharp/RestSharp.csproj --configuration Release --no-build --output artifacts
+      - store_artifacts:
+          path: artifacts
+
+workflows:
+  ci:
+    jobs:
+      - build-and-test

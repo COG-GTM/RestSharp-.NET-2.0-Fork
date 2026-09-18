@@ -4,7 +4,6 @@
     <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>RestSharp.IntegrationTests</AssemblyName>
     <RootNamespace>RestSharp.IntegrationTests</RootNamespace>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <NoWarn>$(NoWarn);NU1701;SYSLIB0014</NoWarn>
