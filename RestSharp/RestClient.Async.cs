@@ -15,97 +15,115 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Text;
-using System.Net;
+using System.Threading.Tasks;
 
 namespace RestSharp
 {
 	public partial class RestClient
 	{
 		/// <summary>
-		/// Executes the request and callback asynchronously, authenticating if needed
+		/// Executes the request asynchronously, authenticating if needed
 		/// </summary>
 		/// <param name="request">Request to be executed</param>
-		/// <param name="callback">Callback function to be executed upon completion providing access to the async handle.</param>
-		public virtual RestRequestAsyncHandle ExecuteAsync(IRestRequest request, Action<RestResponse, RestRequestAsyncHandle> callback)
+		/// <param name="cancellationToken">Token used to cancel the request</param>
+		public virtual async Task<RestResponse> ExecuteAsync(IRestRequest request, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			var http = HttpFactory.Create();
 			AuthenticateIfNeeded(this, request);
 
 			// add Accept header based on registered deserializers
 			var accepts = string.Join(", ", AcceptTypes.ToArray());
 			AddDefaultParameter("Accept", accepts, ParameterType.HttpHeader);
 
-			ConfigureHttp(request, http);
+			var response = new RestResponse();
 
-			HttpWebRequest webRequest = null;
-			var asyncHandle = new RestRequestAsyncHandle();
-
-			Action<HttpResponse> response_cb = r => ProcessResponse(r, asyncHandle, callback);
-
-			if (UseSynchronizationContext && SynchronizationContext.Current != null) {
-				var ctx = SynchronizationContext.Current;
-				var cb = response_cb;
-
-				response_cb = resp => ctx.Post(s => cb(resp), null);
-			}
-			
-			switch(request.Method)
+			try
 			{
-				case Method.GET:
-					webRequest = http.GetAsync(response_cb);
-					break;
-				case Method.POST:
-					webRequest = http.PostAsync(response_cb);
-					break;
-				case Method.PUT:
-					webRequest = http.PutAsync(response_cb);
-					break;
-				case Method.DELETE:
-					webRequest = http.DeleteAsync(response_cb);
-					break;
-				case Method.HEAD:
-					webRequest = http.HeadAsync(response_cb);
-					break;
-				case Method.OPTIONS:
-					webRequest = http.OptionsAsync(response_cb);
-					break;
-				case Method.PATCH:
-					webRequest = http.PatchAsync(response_cb);
-					break;
+				response = await GetResponseAsync(request, cancellationToken).ConfigureAwait(false);
+				response.Request = request;
+				response.Request.IncreaseNumAttempts();
 			}
-			
-			asyncHandle.WebRequest = webRequest;
-			return asyncHandle;
-		}
+			catch (Exception ex)
+			{
+				response.ResponseStatus = ResponseStatus.Error;
+				response.ErrorMessage = ex.Message;
+				response.ErrorException = ex;
+			}
 
-		private void ProcessResponse(HttpResponse httpResponse, RestRequestAsyncHandle asyncHandle, Action<RestResponse, RestRequestAsyncHandle> callback)
-		{
-			var restResponse = ConvertToRestResponse(httpResponse);
-			callback(restResponse, asyncHandle);
+			return response;
 		}
 
 		/// <summary>
-		/// Executes the request and callback asynchronously, authenticating if needed
+		/// Executes the request asynchronously and deserializes the response content, authenticating if needed
 		/// </summary>
 		/// <typeparam name="T">Target deserialization type</typeparam>
 		/// <param name="request">Request to be executed</param>
-		/// <param name="callback">Callback function to be executed upon completion</param>
-		public virtual RestRequestAsyncHandle ExecuteAsync<T>(IRestRequest request, Action<RestResponse<T>, RestRequestAsyncHandle> callback) where T : new()
+		/// <param name="cancellationToken">Token used to cancel the request</param>
+		public virtual async Task<RestResponse<T>> ExecuteAsync<T>(IRestRequest request, CancellationToken cancellationToken = default(CancellationToken)) where T : new()
 		{
-			return ExecuteAsync(request, (response, asyncHandle) =>
-			{
-				var restResponse = (RestResponse<T>)response;
-				if (response.ResponseStatus != ResponseStatus.Aborted)
-				{
-					restResponse = Deserialize<T>(request, response);
-				}
+			var response = await ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
 
-				callback(restResponse, asyncHandle);
-			});
+			if (response.ResponseStatus == ResponseStatus.Aborted)
+			{
+				return new RestResponse<T>
+				{
+					Request = response.Request,
+					ResponseStatus = response.ResponseStatus,
+					ErrorMessage = response.ErrorMessage,
+					ErrorException = response.ErrorException
+				};
+			}
+
+			return Deserialize<T>(request, response);
+		}
+
+		/// <summary>
+		/// Executes the specified request asynchronously and downloads the response data
+		/// </summary>
+		/// <param name="request">Request to execute</param>
+		/// <param name="cancellationToken">Token used to cancel the request</param>
+		public async Task<byte[]> DownloadDataAsync(IRestRequest request, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			var response = await ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
+			return response.RawBytes;
+		}
+
+		private async Task<RestResponse> GetResponseAsync(IRestRequest request, CancellationToken cancellationToken)
+		{
+			var http = HttpFactory.Create();
+
+			ConfigureHttp(request, http);
+			ConfigureProxy(http);
+
+			HttpResponse httpResponse;
+
+			switch (request.Method)
+			{
+				case Method.POST:
+					httpResponse = await http.PostAsync(cancellationToken).ConfigureAwait(false);
+					break;
+				case Method.PUT:
+					httpResponse = await http.PutAsync(cancellationToken).ConfigureAwait(false);
+					break;
+				case Method.DELETE:
+					httpResponse = await http.DeleteAsync(cancellationToken).ConfigureAwait(false);
+					break;
+				case Method.HEAD:
+					httpResponse = await http.HeadAsync(cancellationToken).ConfigureAwait(false);
+					break;
+				case Method.OPTIONS:
+					httpResponse = await http.OptionsAsync(cancellationToken).ConfigureAwait(false);
+					break;
+				case Method.PATCH:
+					httpResponse = await http.PatchAsync(cancellationToken).ConfigureAwait(false);
+					break;
+				default:
+					httpResponse = await http.GetAsync(cancellationToken).ConfigureAwait(false);
+					break;
+			}
+
+			return ConvertToRestResponse(httpResponse);
 		}
 	}
 }

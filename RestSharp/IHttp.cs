@@ -17,8 +17,9 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.IO;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RestSharp
 {
@@ -41,21 +42,13 @@ namespace RestSharp
 
 		Uri Url { get; set; }
 
-		HttpWebRequest DeleteAsync(Action<HttpResponse> action);
-		HttpWebRequest GetAsync(Action<HttpResponse> action);
-		HttpWebRequest HeadAsync(Action<HttpResponse> action);
-		HttpWebRequest OptionsAsync(Action<HttpResponse> action);
-		HttpWebRequest PostAsync(Action<HttpResponse> action);
-		HttpWebRequest PutAsync(Action<HttpResponse> action);
-		HttpWebRequest PatchAsync(Action<HttpResponse> action);
-
-		HttpResponse Delete();
-		HttpResponse Get();
-		HttpResponse Head();
-		HttpResponse Options();
-		HttpResponse Post();
-		HttpResponse Put();
-		HttpResponse Patch();
+		Task<HttpResponse> DeleteAsync(CancellationToken cancellationToken = default(CancellationToken));
+		Task<HttpResponse> GetAsync(CancellationToken cancellationToken = default(CancellationToken));
+		Task<HttpResponse> HeadAsync(CancellationToken cancellationToken = default(CancellationToken));
+		Task<HttpResponse> OptionsAsync(CancellationToken cancellationToken = default(CancellationToken));
+		Task<HttpResponse> PostAsync(CancellationToken cancellationToken = default(CancellationToken));
+		Task<HttpResponse> PutAsync(CancellationToken cancellationToken = default(CancellationToken));
+		Task<HttpResponse> PatchAsync(CancellationToken cancellationToken = default(CancellationToken));
 
 		IWebProxy Proxy { get; set; }
 	}

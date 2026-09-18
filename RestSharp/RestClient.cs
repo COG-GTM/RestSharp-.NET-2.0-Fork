@@ -239,11 +239,6 @@ namespace RestSharp
 		public int Timeout { get; set; }
 
 		/// <summary>
-		/// Whether to invoke async callbacks using the SynchronizationContext.Current captured when invoked
-		/// </summary>
-		public bool UseSynchronizationContext { get; set; }
-
-		/// <summary>
 		/// Authenticator to use for requests made by this client instance
 		/// </summary>
 		public IAuthenticator Authenticator { get; set; }
