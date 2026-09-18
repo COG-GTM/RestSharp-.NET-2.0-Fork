@@ -9,7 +9,7 @@ namespace RestSharp.IntegrationTests
 		[Fact]
 		public void Can_Perform_GET_Async()
 		{
-			const string baseUrl = "http://localhost:8080/";
+			var baseUrl = TestServerUrl.Next();
 			const string val = "Basic async test";
 
 			using (SimpleServer.Create(baseUrl, Handlers.EchoValue(val)))
@@ -27,7 +27,7 @@ namespace RestSharp.IntegrationTests
 		[Fact]
 		public void Can_Cancel_GET_Async()
 		{
-			const string baseUrl = "http://localhost:8080/";
+			var baseUrl = TestServerUrl.Next();
 
 			using (SimpleServer.Create(baseUrl, Handlers.EchoValue("never read")))
 			{

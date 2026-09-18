@@ -6,6 +6,7 @@
     <RootNamespace>RestSharp.Tests</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
     <NoWarn>$(NoWarn);NU1701;SYSLIB0014</NoWarn>
   </PropertyGroup>
 
@@ -16,6 +17,8 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
   </ItemGroup>
 
   <ItemGroup>

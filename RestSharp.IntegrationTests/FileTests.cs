@@ -10,14 +10,14 @@ namespace RestSharp.IntegrationTests
 		[Fact]
 		public void Handles_Binary_File_Download()
 		{
-			const string baseUrl = "http://localhost:8080/";
+			var baseUrl = TestServerUrl.Next();
 			using(SimpleServer.Create(baseUrl, Handlers.FileHandler))
 			{
 				var client = new RestClient(baseUrl);
 				var request = new RestRequest("Assets/Koala.jpg");
 				var response = client.DownloadData(request);
 
-				var expected = File.ReadAllBytes(Environment.CurrentDirectory + "\\Assets\\Koala.jpg");
+				var expected = File.ReadAllBytes(Path.Combine(Environment.CurrentDirectory, "Assets", "Koala.jpg"));
 				Assert.Equal(expected, response);
 			}
 		}

@@ -10,7 +10,7 @@ namespace RestSharp.IntegrationTests
 		[Fact]
 		public void Handles_GET_Request_404_Error()
 		{
-			const string baseUrl = "http://localhost:8080/";
+			var baseUrl = TestServerUrl.Next();
 			using(SimpleServer.Create(baseUrl, UrlToStatusCodeHandler))
 			{
 				var client = new RestClient(baseUrl);
@@ -38,7 +38,7 @@ namespace RestSharp.IntegrationTests
 		[Fact]
 		public void Handles_Different_Root_Element_On_Error()
 		{
-			const string baseUrl = "http://localhost:8080/";
+			var baseUrl = TestServerUrl.Next();
 			using(SimpleServer.Create(baseUrl, Handlers.Generic<ResponseHandler>()))
 			{
 				var client = new RestClient(baseUrl);
@@ -62,7 +62,7 @@ namespace RestSharp.IntegrationTests
 		[Fact]
 		public void Handles_Default_Root_Element_On_No_Error()
 		{
-			const string baseUrl = "http://localhost:8080/";
+			var baseUrl = TestServerUrl.Next();
 			using(SimpleServer.Create(baseUrl, Handlers.Generic<ResponseHandler>()))
 			{
 				var client = new RestClient(baseUrl);
