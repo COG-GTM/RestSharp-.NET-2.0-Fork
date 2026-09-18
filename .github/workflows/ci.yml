@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - run: dotnet restore RestSharp.sln
+
+      - run: dotnet build RestSharp.sln --configuration Release --no-restore
+
+      - run: dotnet test RestSharp.sln --configuration Release --no-build --verbosity normal
+
+      - run: dotnet pack RestSharp/RestSharp.csproj --configuration Release --no-build --output artifacts
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: artifacts/*
