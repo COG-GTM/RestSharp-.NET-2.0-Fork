@@ -80,32 +80,14 @@ namespace RestSharp.Contrib
 		{
 			if (output == null)
 			{
-#if NET_4_0
-				throw new ArgumentNullException ("output");
-#else
 				throw new NullReferenceException(".NET emulation");
-#endif
 			}
-#if NET_4_0
-			HttpEncoder.Current.HtmlAttributeEncode (s, output);
-#else
 			output.Write(HttpEncoder.HtmlAttributeEncode(s));
-#endif
 		}
 
 		public static string HtmlAttributeEncode(string s)
 		{
-#if NET_4_0
-			if (s == null)
-				return null;
-			
-			using (var sw = new StringWriter ()) {
-				HttpEncoder.Current.HtmlAttributeEncode (s, sw);
-				return sw.ToString ();
-			}
-#else
 			return HttpEncoder.HtmlAttributeEncode(s);
-#endif
 		}
 
 		public static string UrlDecode(string str)
@@ -469,11 +451,7 @@ namespace RestSharp.Contrib
 		{
 			if (bytes == null)
 				return null;
-#if NET_4_0
-			return HttpEncoder.Current.UrlEncode (bytes, offset, count);
-#else
 			return HttpEncoder.UrlEncodeToBytes(bytes, offset, count);
-#endif
 		}
 
 		public static string UrlEncodeUnicode(string str)
@@ -507,17 +485,7 @@ namespace RestSharp.Contrib
 		/// <returns>The decoded text.</returns>
 		public static string HtmlDecode(string s)
 		{
-#if NET_4_0
-			if (s == null)
-				return null;
-			
-			using (var sw = new StringWriter ()) {
-				HttpEncoder.Current.HtmlDecode (s, sw);
-				return sw.ToString ();
-			}
-#else
 			return HttpEncoder.HtmlDecode(s);
-#endif
 		}
 
 		/// <summary>
@@ -529,36 +497,18 @@ namespace RestSharp.Contrib
 		{
 			if (output == null)
 			{
-#if NET_4_0
-				throw new ArgumentNullException ("output");
-#else
 				throw new NullReferenceException(".NET emulation");
-#endif
 			}
 
 			if (!String.IsNullOrEmpty(s))
 			{
-#if NET_4_0
-				HttpEncoder.Current.HtmlDecode (s, output);
-#else
 				output.Write(HttpEncoder.HtmlDecode(s));
-#endif
 			}
 		}
 
 		public static string HtmlEncode(string s)
 		{
-#if NET_4_0
-			if (s == null)
-				return null;
-			
-			using (var sw = new StringWriter ()) {
-				HttpEncoder.Current.HtmlEncode (s, sw);
-				return sw.ToString ();
-			}
-#else
 			return HttpEncoder.HtmlEncode(s);
-#endif
 		}
 
 		/// <summary>
@@ -570,116 +520,17 @@ namespace RestSharp.Contrib
 		{
 			if (output == null)
 			{
-#if NET_4_0
-				throw new ArgumentNullException ("output");
-#else
 				throw new NullReferenceException(".NET emulation");
-#endif
 			}
 
 			if (!String.IsNullOrEmpty(s))
 			{
-#if NET_4_0
-				HttpEncoder.Current.HtmlEncode (s, output);
-#else
 				output.Write(HttpEncoder.HtmlEncode(s));
-#endif
 			}
 		}
-#if NET_4_0
-		public static string HtmlEncode (object value)
-		{
-			if (value == null)
-				return null;
-
-			IHtmlString htmlString = value as IHtmlString;
-			if (htmlString != null)
-				return htmlString.ToHtmlString ();
-			
-			return HtmlEncode (value.ToString ());
-		}
-
-		public static string JavaScriptStringEncode (string value)
-		{
-			return JavaScriptStringEncode (value, false);
-		}
-
-		public static string JavaScriptStringEncode (string value, bool addDoubleQuotes)
-		{
-			if (String.IsNullOrEmpty (value))
-				return addDoubleQuotes ? "\"\"" : String.Empty;
-
-			int len = value.Length;
-			bool needEncode = false;
-			char c;
-			for (int i = 0; i < len; i++) {
-				c = value [i];
-
-				if (c >= 0 && c <= 31 || c == 34 || c == 39 || c == 60 || c == 62 || c == 92) {
-					needEncode = true;
-					break;
-				}
-			}
-
-			if (!needEncode)
-				return addDoubleQuotes ? "\"" + value + "\"" : value;
-
-			var sb = new StringBuilder ();
-			if (addDoubleQuotes)
-				sb.Append ('"');
-
-			for (int i = 0; i < len; i++) {
-				c = value [i];
-				if (c >= 0 && c <= 7 || c == 11 || c >= 14 && c <= 31 || c == 39 || c == 60 || c == 62)
-					sb.AppendFormat ("\\u{0:x4}", (int)c);
-				else switch ((int)c) {
-						case 8:
-							sb.Append ("\\b");
-							break;
-
-						case 9:
-							sb.Append ("\\t");
-							break;
-
-						case 10:
-							sb.Append ("\\n");
-							break;
-
-						case 12:
-							sb.Append ("\\f");
-							break;
-
-						case 13:
-							sb.Append ("\\r");
-							break;
-
-						case 34:
-							sb.Append ("\\\"");
-							break;
-
-						case 92:
-							sb.Append ("\\\\");
-							break;
-
-						default:
-							sb.Append (c);
-							break;
-					}
-			}
-
-			if (addDoubleQuotes)
-				sb.Append ('"');
-
-			return sb.ToString ();
-		}
-#endif
 		public static string UrlPathEncode(string s)
 		{
-#if NET_4_0
-			return HttpEncoder.Current.UrlPathEncode (s);
-#else
 			return HttpEncoder.UrlPathEncode(s);
-#endif
 		}
 
 		public static NameValueCollection ParseQueryString(string query)
