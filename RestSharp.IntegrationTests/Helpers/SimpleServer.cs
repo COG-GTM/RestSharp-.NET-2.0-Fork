@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace RestSharp.IntegrationTests.Helpers
 {
@@ -8,7 +9,8 @@ namespace RestSharp.IntegrationTests.Helpers
 	{
 		readonly HttpListener _listener;
 		readonly Action<HttpListenerContext> _handler;
-		Thread _processor;
+		readonly CancellationTokenSource _cancellation = new CancellationTokenSource();
+		Task _processor;
 
 		public static SimpleServer Create(string url, Action<HttpListenerContext> handler)
 		{
@@ -25,25 +27,39 @@ namespace RestSharp.IntegrationTests.Helpers
 
 		public void Start()
 		{
-			if(!_listener.IsListening)
+			if (_listener.IsListening)
 			{
-				_listener.Start();
+				return;
+			}
 
-				_processor = new Thread(() =>
+			_listener.Start();
+			_processor = Task.Run(async () =>
+			{
+				while (!_cancellation.IsCancellationRequested)
 				{
-					var context = _listener.GetContext();
+					HttpListenerContext context;
+
+					try
+					{
+						context = await _listener.GetContextAsync().ConfigureAwait(false);
+					}
+					catch (Exception)
+					{
+						return;
+					}
+
 					_handler(context);
 					context.Response.Close();
-				}) { Name = "WebServer" };
-				_processor.Start();
-			}
+				}
+			});
 		}
 
 		public void Dispose()
 		{
-			_processor.Abort();
+			_cancellation.Cancel();
 			_listener.Stop();
 			_listener.Close();
+			_cancellation.Dispose();
 		}
 	}
 }

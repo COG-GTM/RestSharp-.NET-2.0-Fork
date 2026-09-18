@@ -14,7 +14,7 @@ namespace RestSharp.IntegrationTests
 		[Fact]
 		public void Can_Authenticate_With_Basic_Http_Auth()
 		{
-			const string baseUrl = "http://localhost:8080/";
+			var baseUrl = TestServerUrl.Next();
 			using(SimpleServer.Create(baseUrl, UsernamePasswordEchoHandler))
 			{
 				var client = new RestClient(baseUrl);
