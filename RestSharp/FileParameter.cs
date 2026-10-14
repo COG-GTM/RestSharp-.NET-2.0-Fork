@@ -44,7 +44,19 @@ namespace RestSharp
 		/// <summary>
 		/// The length of data to be sent
 		/// </summary>
-		public long ContentLength { get; set; }
+		public long ContentLength
+		{
+			get => _contentLength;
+			set
+			{
+				_contentLength = value;
+				ContentLengthSpecified = true;
+			}
+		}
+
+		private long _contentLength;
+
+		internal bool ContentLengthSpecified { get; private set; }
 		/// <summary>
 		/// Provides raw data for file
 		/// </summary>

@@ -291,6 +291,31 @@ namespace RestSharp.IntegrationTests
 		}
 
 		[Fact]
+		public void Uploads_Empty_Byte_Array_File_With_Content_Length()
+		{
+			string body = null, transferEncoding = null;
+			long contentLength = 0;
+			using (SimpleServer.Create(BaseUrl, ctx =>
+			{
+				transferEncoding = ctx.Request.Headers["Transfer-Encoding"];
+				contentLength = ctx.Request.ContentLength64;
+				body = ReadBody(ctx);
+			}))
+			{
+				var client = new RestClient(BaseUrl);
+				var request = new RestRequest("upload", Method.POST);
+				request.AddFile("empty", new byte[0], "empty.txt");
+
+				var response = client.Execute(request);
+
+				Assert.Equal(ResponseStatus.Completed, response.ResponseStatus);
+				Assert.Null(transferEncoding);
+				Assert.Equal(Encoding.UTF8.GetByteCount(body), contentLength);
+				Assert.Contains("filename=\"empty.txt\"", body);
+			}
+		}
+
+		[Fact]
 		public void Sends_Explicit_Cookie_Header()
 		{
 			string cookieHeader = null;

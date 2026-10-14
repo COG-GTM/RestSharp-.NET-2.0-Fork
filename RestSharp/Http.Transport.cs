@@ -347,7 +347,7 @@ namespace RestSharp
 			protected override bool TryComputeLength(out long length)
 			{
 				// files added via a Writer without a known length are sent chunked
-				if (_http.Files.Any(f => f.ContentLength <= 0))
+				if (_http.Files.Any(f => !f.ContentLengthSpecified))
 				{
 					length = 0;
 					return false;
