@@ -25,40 +25,19 @@ namespace RestSharp
 	/// </summary>
 	public partial class Http
 	{
-		public RestRequestAsyncHandle DeleteAsync(Action<HttpResponse> action)
-		{
-			return StartAsync("DELETE", action);
-		}
+		public RestRequestAsyncHandle DeleteAsync(Action<HttpResponse> action) => StartAsync("DELETE", action);
 
-		public RestRequestAsyncHandle GetAsync(Action<HttpResponse> action)
-		{
-			return StartAsync("GET", action);
-		}
+		public RestRequestAsyncHandle GetAsync(Action<HttpResponse> action) => StartAsync("GET", action);
 
-		public RestRequestAsyncHandle HeadAsync(Action<HttpResponse> action)
-		{
-			return StartAsync("HEAD", action);
-		}
+		public RestRequestAsyncHandle HeadAsync(Action<HttpResponse> action) => StartAsync("HEAD", action);
 
-		public RestRequestAsyncHandle OptionsAsync(Action<HttpResponse> action)
-		{
-			return StartAsync("OPTIONS", action);
-		}
+		public RestRequestAsyncHandle OptionsAsync(Action<HttpResponse> action) => StartAsync("OPTIONS", action);
 
-		public RestRequestAsyncHandle PostAsync(Action<HttpResponse> action)
-		{
-			return StartAsync("POST", action);
-		}
+		public RestRequestAsyncHandle PostAsync(Action<HttpResponse> action) => StartAsync("POST", action);
 
-		public RestRequestAsyncHandle PutAsync(Action<HttpResponse> action)
-		{
-			return StartAsync("PUT", action);
-		}
+		public RestRequestAsyncHandle PutAsync(Action<HttpResponse> action) => StartAsync("PUT", action);
 
-		public RestRequestAsyncHandle PatchAsync(Action<HttpResponse> action)
-		{
-			return StartAsync("PATCH", action);
-		}
+		public RestRequestAsyncHandle PatchAsync(Action<HttpResponse> action) => StartAsync("PATCH", action);
 
 		private RestRequestAsyncHandle StartAsync(string method, Action<HttpResponse> callback)
 		{

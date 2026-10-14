@@ -42,54 +42,27 @@ namespace RestSharp
 		/// Creates an IHttp
 		///</summary>
 		///<returns></returns>
-		public IHttp Create()
-		{
-			return new Http();
-		}
+		public IHttp Create() => new Http();
 
 		/// <summary>
 		/// True if this HTTP request has any HTTP parameters
 		/// </summary>
-		protected bool HasParameters
-		{
-			get
-			{
-				return Parameters.Any();
-			}
-		}
+		protected bool HasParameters => Parameters.Any();
 
 		/// <summary>
 		/// True if this HTTP request has any HTTP cookies
 		/// </summary>
-		protected bool HasCookies
-		{
-			get
-			{
-				return Cookies.Any();
-			}
-		}
+		protected bool HasCookies => Cookies.Any();
 
 		/// <summary>
 		/// True if a request body has been specified
 		/// </summary>
-		protected bool HasBody
-		{
-			get
-			{
-				return !string.IsNullOrEmpty(RequestBody);
-			}
-		}
+		protected bool HasBody => !string.IsNullOrEmpty(RequestBody);
 
 		/// <summary>
 		/// True if files have been set to be uploaded
 		/// </summary>
-		protected bool HasFiles
-		{
-			get
-			{
-				return Files.Any();
-			}
-		}
+		protected bool HasFiles => Files.Any();
 
 		/// <summary>
 		/// UserAgent to be sent with request
@@ -165,27 +138,16 @@ namespace RestSharp
 		}
 
 		private const string FormBoundary = "-----------------------------28947758029299";
-		private static string GetMultipartFormContentType()
-		{
-			return string.Format("multipart/form-data; boundary={0}", FormBoundary);
-		}
-		
-		private static string GetMultipartFileHeader (HttpFile file)
-		{
-			return string.Format ("--{0}{4}Content-Disposition: form-data; name=\"{1}\"; filename=\"{2}\"{4}Content-Type: {3}{4}{4}",
-				FormBoundary, file.Name, file.FileName, file.ContentType ?? "application/octet-stream", _lineBreak);
-		}
-		
-		private static string GetMultipartFormData (HttpParameter param)
-		{
-			return string.Format ("--{0}{3}Content-Disposition: form-data; name=\"{1}\"{3}{3}{2}{3}",
-				FormBoundary, param.Name, param.Value, _lineBreak);
-		}
-		
-		private static string GetMultipartFooter ()
-		{
-			return string.Format ("--{0}--{1}", FormBoundary, _lineBreak);
-		}
+		private static string GetMultipartFormContentType() => $"multipart/form-data; boundary={FormBoundary}";
+
+		private static string GetMultipartFileHeader(HttpFile file) =>
+			$"--{FormBoundary}{_lineBreak}Content-Disposition: form-data; name=\"{file.Name}\"; filename=\"{file.FileName}\"{_lineBreak}" +
+			$"Content-Type: {file.ContentType ?? "application/octet-stream"}{_lineBreak}{_lineBreak}";
+
+		private static string GetMultipartFormData(HttpParameter param) =>
+			$"--{FormBoundary}{_lineBreak}Content-Disposition: form-data; name=\"{param.Name}\"{_lineBreak}{_lineBreak}{param.Value}{_lineBreak}";
+
+		private static string GetMultipartFooter() => $"--{FormBoundary}--{_lineBreak}";
 		
 		private string EncodeParameters()
 		{

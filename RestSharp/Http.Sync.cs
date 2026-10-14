@@ -26,68 +26,41 @@ namespace RestSharp
 		/// <summary>
 		/// Execute a POST request
 		/// </summary>
-		public HttpResponse Post()
-		{
-			return PostPutInternal("POST");
-		}
+		public HttpResponse Post() => PostPutInternal("POST");
 
 		/// <summary>
 		/// Execute a PUT request
 		/// </summary>
-		public HttpResponse Put()
-		{
-			return PostPutInternal("PUT");
-		}
+		public HttpResponse Put() => PostPutInternal("PUT");
 
 		/// <summary>
 		/// Execute a GET request
 		/// </summary>
-		public HttpResponse Get()
-		{
-			return GetStyleMethodInternal("GET");
-		}
+		public HttpResponse Get() => GetStyleMethodInternal("GET");
 
 		/// <summary>
 		/// Execute a HEAD request
 		/// </summary>
-		public HttpResponse Head()
-		{
-			return GetStyleMethodInternal("HEAD");
-		}
+		public HttpResponse Head() => GetStyleMethodInternal("HEAD");
 
 		/// <summary>
 		/// Execute an OPTIONS request
 		/// </summary>
-		public HttpResponse Options()
-		{
-			return GetStyleMethodInternal("OPTIONS");
-		}
+		public HttpResponse Options() => GetStyleMethodInternal("OPTIONS");
 
 		/// <summary>
 		/// Execute a DELETE request
 		/// </summary>
-		public HttpResponse Delete()
-		{
-			return GetStyleMethodInternal("DELETE");
-		}
+		public HttpResponse Delete() => GetStyleMethodInternal("DELETE");
 
 		/// <summary>
 		/// Execute a PATCH request
 		/// </summary>
-		public HttpResponse Patch()
-		{
-			return PostPutInternal("PATCH");
-		}
+		public HttpResponse Patch() => PostPutInternal("PATCH");
 
-		private HttpResponse GetStyleMethodInternal(string method)
-		{
-			return Send(method);
-		}
+		private HttpResponse GetStyleMethodInternal(string method) => Send(method);
 
-		private HttpResponse PostPutInternal(string method)
-		{
-			return Send(method);
-		}
+		private HttpResponse PostPutInternal(string method) => Send(method);
 
 		// netstandard2.0 has no synchronous HttpClient.Send; every await in the transport uses
 		// ConfigureAwait(false), so blocking here cannot deadlock on a SynchronizationContext.

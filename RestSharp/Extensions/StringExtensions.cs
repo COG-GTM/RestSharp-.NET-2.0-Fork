@@ -26,10 +26,7 @@ namespace RestSharp.Extensions
 {
 	public static class StringExtensions
 	{
-		public static string UrlDecode(this string input)
-		{
-			return WebUtility.UrlDecode(input);
-		}
+		public static string UrlDecode(this string input) => WebUtility.UrlDecode(input);
 
 		/// <summary>
 		/// Uses Uri.EscapeDataString() based on recommendations on MSDN
@@ -40,15 +37,9 @@ namespace RestSharp.Extensions
 			return Uri.EscapeDataString(input);
 		}
 
-		public static string HtmlDecode(this string input)
-		{
-			return WebUtility.HtmlDecode(input);
-		}
+		public static string HtmlDecode(this string input) => WebUtility.HtmlDecode(input);
 
-		public static string HtmlEncode(this string input)
-		{
-			return WebUtility.HtmlEncode(input);
-		}
+		public static string HtmlEncode(this string input) => WebUtility.HtmlEncode(input);
 
 		public static string HtmlAttributeEncode(this string input)
 		{
