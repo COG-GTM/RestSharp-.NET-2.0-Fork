@@ -4,20 +4,47 @@
     <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
     <RootNamespace>RestSharp</RootNamespace>
     <AssemblyName>RestSharp</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);CS1570;CS1572;CS1573;CS1574;CS1580;CS1584;CS1587;CS1591;CS1658;CS1711;SYSLIB0014</NoWarn>
+    <NoWarn>$(NoWarn);CS1570;CS1572;CS1573;CS1574;CS1580;CS1584;CS1587;CS1591;CS1658;CS1711</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Package">
+    <PackageId>RestSharp</PackageId>
+    <Version>103.0.0</Version>
+    <Title>RestSharp</Title>
+    <Product>RestSharp</Product>
+    <Description>Simple REST and HTTP API Client</Description>
+    <Authors>John Sheehan, RestSharp Community</Authors>
+    <Company>restsharp.org</Company>
+    <Copyright>Copyright © RestSharp Project 2009-2011</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>http://restsharp.org</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/COG-GTM/RestSharp-.NET-2.0-Fork</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>REST HTTP API JSON XML</PackageTags>
+    <PackageReleaseNotes>103.0 - SDK-style project targeting netstandard2.0/net8.0, HttpClient transport, Json.NET 13</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="T4Helper\**" />
     <None Include="T4Helper\*.tt" />
+    <None Include="..\LICENSE.txt" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.4.5.1\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
+    <InternalsVisibleTo Include="RestSharp.IntegrationTests" />
+    <AssemblyAttribute Include="System.Runtime.InteropServices.ComVisibleAttribute">
+      <_Parameter1>false</_Parameter1>
+      <_Parameter1_IsLiteral>true</_Parameter1_IsLiteral>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <Compile Remove="Serializers\SystemTextJsonSerializer.cs" />
   </ItemGroup>
 
 </Project>
