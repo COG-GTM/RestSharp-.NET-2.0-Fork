@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Text;
 using RestSharp.Authenticators;
-using RestSharp.Contrib;
+using System.Web;
 using RestSharp.IntegrationTests.Helpers;
 using Xunit;
 

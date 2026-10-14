@@ -22,30 +22,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
 
-#if Net2
-using RestSharp.Contrib;
-#endif
-
-#if SILVERLIGHT
-using System.Windows.Browser;
-#endif
-
-#if WINDOWS_PHONE
-#endif
-
-#if FRAMEWORK || MONOTOUCH || MONODROID
-using RestSharp.Contrib;
-#endif
-
-
 namespace RestSharp.Extensions
 {
 	public static class StringExtensions
 	{
-		public static string UrlDecode(this string input)
-		{
-			return HttpUtility.UrlDecode(input);
-		}
+		public static string UrlDecode(this string input) => WebUtility.UrlDecode(input);
 
 		/// <summary>
 		/// Uses Uri.EscapeDataString() based on recommendations on MSDN
@@ -56,22 +37,29 @@ namespace RestSharp.Extensions
 			return Uri.EscapeDataString(input);
 		}
 
-		public static string HtmlDecode(this string input)
-		{
-			return HttpUtility.HtmlDecode(input);
-		}
+		public static string HtmlDecode(this string input) => WebUtility.HtmlDecode(input);
 
-		public static string HtmlEncode(this string input)
-		{
-			return HttpUtility.HtmlEncode(input);
-		}
+		public static string HtmlEncode(this string input) => WebUtility.HtmlEncode(input);
 
-#if FRAMEWORK
 		public static string HtmlAttributeEncode(this string input)
 		{
-			return HttpUtility.HtmlAttributeEncode(input);
+			if (input == null)
+				return null;
+
+			var sb = new StringBuilder(input.Length);
+			foreach (var c in input)
+			{
+				switch (c)
+				{
+					case '&': sb.Append("&amp;"); break;
+					case '"': sb.Append("&quot;"); break;
+					case '\'': sb.Append("&#39;"); break;
+					case '<': sb.Append("&lt;"); break;
+					default: sb.Append(c); break;
+				}
+			}
+			return sb.ToString();
 		}
-#endif
 
 		/// <summary>
 		/// Check that a string is not null or empty

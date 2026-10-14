@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 using RestSharp.Authenticators.OAuth;
 using Xunit;
 using System.Net;
-using RestSharp.Contrib;
+using System.Web;
 using RestSharp.Authenticators;
 using System.Diagnostics;
 using System;

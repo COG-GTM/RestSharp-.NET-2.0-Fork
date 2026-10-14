@@ -1,9 +1,18 @@
 # RestSharp .NET 2.0 Fork - Simple .NET REST Client
 
-This is a fork of RestSharp for ,NET 2.0.
+Originally a fork of RestSharp for .NET 2.0, now modernized to a single SDK-style project
+targeting `netstandard2.0` (works on .NET Framework 4.6.1+) and `net8.0`, using `HttpClient` under the hood.
 
-To get it to work correctly we have included System.Xml.Linq from Mono project, and LinqBridge.cs, 
-so you may run into conflicts should you have other .NET2 projects that have done the same
+### Building
+
+```
+dotnet build RestSharp.sln
+dotnet test RestSharp.sln
+dotnet pack RestSharp/RestSharp.csproj -c Release
+```
+
+The integration tests host a local `HttpListener` on `http://localhost:8080/`. `oAuth1Tests.Can_Authenticate_With_OAuth`
+is skipped because it needs real Twitter consumer credentials and the retired Twitter OAuth 1.0a endpoints.
 
 ### [Official Site/Blog][1] - [@RestSharp][2]  
 ### Please use the [Google Group][3] for feature requests and troubleshooting usage.
@@ -11,7 +20,7 @@ so you may run into conflicts should you have other .NET2 projects that have don
 
 ### Features
 
-* Supports .NET 3.5+, Silverlight 4, Windows Phone 7, Mono, MonoTouch
+* Supports .NET Standard 2.0 and .NET 8+
 * Automatic XML and JSON deserialization
 * Supports custom serialization and deserialization via ISerializer and IDeserializer
 * Fuzzy element name matching ('product_id' in XML/JSON will match C# property named 'ProductId')

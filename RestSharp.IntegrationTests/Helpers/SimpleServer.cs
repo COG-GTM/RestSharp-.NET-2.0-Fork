@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Threading;
 
@@ -25,25 +25,53 @@ namespace RestSharp.IntegrationTests.Helpers
 
 		public void Start()
 		{
-			if(!_listener.IsListening)
-			{
-				_listener.Start();
+			if (_listener.IsListening)
+				return;
 
-				_processor = new Thread(() =>
+			_listener.Start();
+			_processor = new Thread(Process) { Name = "WebServer", IsBackground = true };
+			_processor.Start();
+		}
+
+		void Process()
+		{
+			while (_listener.IsListening)
+			{
+				HttpListenerContext context;
+				try
 				{
-					var context = _listener.GetContext();
+					context = _listener.GetContext();
+				}
+				catch (HttpListenerException)
+				{
+					return;
+				}
+				catch (ObjectDisposedException)
+				{
+					return;
+				}
+				catch (InvalidOperationException)
+				{
+					return;
+				}
+
+				try
+				{
 					_handler(context);
-					context.Response.Close();
-				}) { Name = "WebServer" };
-				_processor.Start();
+				}
+				finally
+				{
+					try { context.Response.Close(); }
+					catch (ObjectDisposedException) { }
+				}
 			}
 		}
 
 		public void Dispose()
 		{
-			_processor.Abort();
 			_listener.Stop();
 			_listener.Close();
+			_processor?.Join(TimeSpan.FromSeconds(5));
 		}
 	}
 }

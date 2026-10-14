@@ -80,7 +80,7 @@ namespace RestSharp
 		/// </summary>
 		public Uri ResponseUri { get; set; }
 		/// <summary>
-		/// HttpWebResponse.Server
+		/// Value of the Server response header
 		/// </summary>
 		public string Server { get; set; }
 		/// <summary>

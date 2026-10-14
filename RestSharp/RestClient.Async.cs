@@ -40,8 +40,9 @@ namespace RestSharp
 			AddDefaultParameter("Accept", accepts, ParameterType.HttpHeader);
 
 			ConfigureHttp(request, http);
+			ConfigureProxy(http);
 
-			HttpWebRequest webRequest = null;
+			RestRequestAsyncHandle httpHandle = null;
 			var asyncHandle = new RestRequestAsyncHandle();
 
 			Action<HttpResponse> response_cb = r => ProcessResponse(r, asyncHandle, callback);
@@ -56,29 +57,29 @@ namespace RestSharp
 			switch(request.Method)
 			{
 				case Method.GET:
-					webRequest = http.GetAsync(response_cb);
+					httpHandle = http.GetAsync(response_cb);
 					break;
 				case Method.POST:
-					webRequest = http.PostAsync(response_cb);
+					httpHandle = http.PostAsync(response_cb);
 					break;
 				case Method.PUT:
-					webRequest = http.PutAsync(response_cb);
+					httpHandle = http.PutAsync(response_cb);
 					break;
 				case Method.DELETE:
-					webRequest = http.DeleteAsync(response_cb);
+					httpHandle = http.DeleteAsync(response_cb);
 					break;
 				case Method.HEAD:
-					webRequest = http.HeadAsync(response_cb);
+					httpHandle = http.HeadAsync(response_cb);
 					break;
 				case Method.OPTIONS:
-					webRequest = http.OptionsAsync(response_cb);
+					httpHandle = http.OptionsAsync(response_cb);
 					break;
 				case Method.PATCH:
-					webRequest = http.PatchAsync(response_cb);
+					httpHandle = http.PatchAsync(response_cb);
 					break;
 			}
 			
-			asyncHandle.WebRequest = webRequest;
+			asyncHandle.Link(httpHandle);
 			return asyncHandle;
 		}
 
