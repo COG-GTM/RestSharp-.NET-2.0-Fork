@@ -58,7 +58,7 @@ namespace RestSharp
 		Uri ResponseUri { get; set; }
 
 		/// <summary>
-		/// HttpWebResponse.Server
+		/// Value of the Server response header
 		/// </summary>
 		string Server { get; set; }
 

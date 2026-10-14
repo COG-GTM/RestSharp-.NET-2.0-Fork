@@ -41,13 +41,13 @@ namespace RestSharp
 
 		Uri Url { get; set; }
 
-		HttpWebRequest DeleteAsync(Action<HttpResponse> action);
-		HttpWebRequest GetAsync(Action<HttpResponse> action);
-		HttpWebRequest HeadAsync(Action<HttpResponse> action);
-		HttpWebRequest OptionsAsync(Action<HttpResponse> action);
-		HttpWebRequest PostAsync(Action<HttpResponse> action);
-		HttpWebRequest PutAsync(Action<HttpResponse> action);
-		HttpWebRequest PatchAsync(Action<HttpResponse> action);
+		RestRequestAsyncHandle DeleteAsync(Action<HttpResponse> action);
+		RestRequestAsyncHandle GetAsync(Action<HttpResponse> action);
+		RestRequestAsyncHandle HeadAsync(Action<HttpResponse> action);
+		RestRequestAsyncHandle OptionsAsync(Action<HttpResponse> action);
+		RestRequestAsyncHandle PostAsync(Action<HttpResponse> action);
+		RestRequestAsyncHandle PutAsync(Action<HttpResponse> action);
+		RestRequestAsyncHandle PatchAsync(Action<HttpResponse> action);
 
 		HttpResponse Delete();
 		HttpResponse Get();
