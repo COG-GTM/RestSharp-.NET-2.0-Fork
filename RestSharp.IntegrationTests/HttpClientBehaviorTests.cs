@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using RestSharp.IntegrationTests.Helpers;
@@ -262,6 +264,87 @@ namespace RestSharp.IntegrationTests
 				client.Execute(request);
 
 				Assert.Contains("\"Name\": \"stj\"", body);
+			}
+		}
+			[Fact]
+		public void Uploads_Writer_File_Without_Known_Length_Chunked()
+		{
+			string body = null, transferEncoding = null;
+			using (SimpleServer.Create(BaseUrl, ctx =>
+			{
+				transferEncoding = ctx.Request.Headers["Transfer-Encoding"];
+				body = ReadBody(ctx);
+			}))
+			{
+				var payload = new string('x', 100);
+				var client = new RestClient(BaseUrl);
+				var request = new RestRequest("upload", Method.POST);
+				request.AddFile("file", s => { var b = Encoding.UTF8.GetBytes(payload); s.Write(b, 0, b.Length); }, "a.bin");
+
+				var response = client.Execute(request);
+
+				Assert.Equal(ResponseStatus.Completed, response.ResponseStatus);
+				Assert.Equal("chunked", transferEncoding);
+				Assert.Contains("filename=\"a.bin\"", body);
+				Assert.Contains(payload + "\r\n--", body);
+			}
+		}
+
+		[Fact]
+		public void Sends_Explicit_Cookie_Header()
+		{
+			string cookieHeader = null;
+			using (SimpleServer.Create(BaseUrl, ctx => cookieHeader = ctx.Request.Headers["Cookie"]))
+			{
+				var client = new RestClient(BaseUrl);
+				var request = new RestRequest("");
+				request.AddHeader("Cookie", "session=abc");
+
+				client.Execute(request);
+
+				Assert.Equal("session=abc", cookieHeader);
+			}
+		}
+
+		[Fact]
+		public void Merges_Explicit_Cookie_Header_With_Container_Cookies_Explicit_Wins()
+		{
+			string cookieHeader = null;
+			using (SimpleServer.Create(BaseUrl, ctx => cookieHeader = ctx.Request.Headers["Cookie"]))
+			{
+				var container = new CookieContainer();
+				container.Add(new Uri(BaseUrl), new Cookie("session", "fromContainer"));
+				container.Add(new Uri(BaseUrl), new Cookie("other", "1"));
+				var client = new RestClient(BaseUrl) { CookieContainer = container };
+				var request = new RestRequest("");
+				request.AddHeader("Cookie", "session=explicit");
+
+				client.Execute(request);
+
+				Assert.Equal("session=explicit; other=1", cookieHeader);
+			}
+		}
+
+		[Fact]
+		public void Client_Cache_Key_Tracks_Certificate_Collection_Contents()
+		{
+			using (var rsa = RSA.Create(2048))
+			{
+				X509Certificate2 Make(string cn) => new CertificateRequest("CN=" + cn, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1)
+					.CreateSelfSigned(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(1));
+
+				var certs = new X509CertificateCollection { Make("a") };
+				var before = new HttpClientCache.Key(true, null, null, null, certs);
+				var same = new HttpClientCache.Key(true, null, null, null, new X509CertificateCollection { certs[0] });
+
+				certs.Clear();
+				certs.Add(Make("b"));
+				var after = new HttpClientCache.Key(true, null, null, null, certs);
+
+				Assert.Equal(before, same);
+				Assert.Equal(before.GetHashCode(), same.GetHashCode());
+				Assert.NotEqual(before, after);
+				Assert.Equal("CN=a", before.ClientCertificates[0].Subject);
 			}
 		}
 	}

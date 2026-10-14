@@ -39,7 +39,7 @@ namespace RestSharp
 			"Date",           // set by system
 			"Host",           // set by system
 			"Range",          // handled explicitly
-			"Cookie"          // built from Cookies / CookieContainer
+			"Cookie"          // merged with Cookies / CookieContainer in AppendCookies
 		};
 
 		private static readonly Regex _rangeRegex = new Regex(@"=(\d+)-(\d+)$", RegexOptions.Compiled);
@@ -106,6 +106,7 @@ namespace RestSharp
 		{
 			var request = new HttpRequestMessage(new HttpMethod(method), Url);
 			var contentHeaders = new List<HttpHeader>();
+			var explicitCookies = new List<string>();
 
 			foreach (var header in Headers)
 			{
@@ -113,6 +114,8 @@ namespace RestSharp
 				{
 					if (string.Equals(header.Name, "Range", StringComparison.OrdinalIgnoreCase))
 						AddRange(request, header.Value);
+					else if (string.Equals(header.Name, "Cookie", StringComparison.OrdinalIgnoreCase) && header.Value.HasValue())
+						explicitCookies.Add(header.Value);
 					continue;
 				}
 
@@ -126,7 +129,7 @@ namespace RestSharp
 				request.Headers.TryAddWithoutValidation("User-Agent", UserAgent);
 			}
 
-			AppendCookies(request);
+			AppendCookies(request, explicitCookies);
 
 			request.Content = IsBodyMethod(method) ? CreateBodyContent() : null;
 
@@ -180,7 +183,7 @@ namespace RestSharp
 			return content;
 		}
 
-		private void AppendCookies(HttpRequestMessage request)
+		private void AppendCookies(HttpRequestMessage request, List<string> explicitCookies)
 		{
 			var container = CookieContainer ?? new CookieContainer();
 			foreach (var httpCookie in Cookies)
@@ -193,9 +196,26 @@ namespace RestSharp
 				});
 			}
 
-			var cookieHeader = container.GetCookieHeader(Url);
-			if (cookieHeader.HasValue())
-				request.Headers.TryAddWithoutValidation("Cookie", cookieHeader);
+			// an explicit Cookie header wins over container cookies with the same name
+			var pairs = explicitCookies
+				.SelectMany(h => h.Split(';'))
+				.Select(c => c.Trim())
+				.Where(c => c.Length > 0)
+				.ToList();
+			var explicitNames = new HashSet<string>(pairs.Select(CookieName), StringComparer.Ordinal);
+
+			pairs.AddRange(container.GetCookies(Url).Cast<Cookie>()
+				.Where(c => !explicitNames.Contains(c.Name))
+				.Select(c => c.ToString()));
+
+			if (pairs.Count > 0)
+				request.Headers.TryAddWithoutValidation("Cookie", string.Join("; ", pairs));
+		}
+
+		private static string CookieName(string pair)
+		{
+			var i = pair.IndexOf('=');
+			return (i < 0 ? pair : pair.Substring(0, i)).Trim();
 		}
 
 		private static void AddRange(HttpRequestMessage request, string range)
@@ -326,6 +346,13 @@ namespace RestSharp
 
 			protected override bool TryComputeLength(out long length)
 			{
+				// files added via a Writer without a known length are sent chunked
+				if (_http.Files.Any(f => f.ContentLength <= 0))
+				{
+					length = 0;
+					return false;
+				}
+
 				length = _http.CalculateContentLength();
 				return true;
 			}

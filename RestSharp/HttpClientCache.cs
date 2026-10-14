@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
@@ -65,7 +66,7 @@ namespace RestSharp
 			if (key.Credentials != null)
 				handler.Credentials = key.Credentials;
 
-			if (key.ClientCertificates != null && key.ClientCertificates.Count > 0)
+			if (key.ClientCertificates.Length > 0)
 			{
 				handler.ClientCertificateOptions = ClientCertificateOption.Manual;
 				handler.ClientCertificates.AddRange(key.ClientCertificates);
@@ -104,14 +105,18 @@ namespace RestSharp
 				MaxRedirects = maxRedirects;
 				Proxy = proxy;
 				Credentials = credentials;
-				ClientCertificates = clientCertificates;
+				// snapshot so later changes to the caller's collection produce a different key
+				ClientCertificates = clientCertificates == null ? new X509Certificate[0] : clientCertificates.Cast<X509Certificate>().ToArray();
+				_certificateHashes = ClientCertificates.Select(c => c.GetCertHashString()).ToArray();
 			}
+
+			private readonly string[] _certificateHashes;
 
 			public bool FollowRedirects { get; }
 			public int? MaxRedirects { get; }
 			public IWebProxy Proxy { get; }
 			public ICredentials Credentials { get; }
-			public X509CertificateCollection ClientCertificates { get; }
+			public X509Certificate[] ClientCertificates { get; }
 
 			public bool Equals(Key other) =>
 				other != null
@@ -119,7 +124,7 @@ namespace RestSharp
 				&& MaxRedirects == other.MaxRedirects
 				&& ReferenceEquals(Proxy, other.Proxy)
 				&& ReferenceEquals(Credentials, other.Credentials)
-				&& ReferenceEquals(ClientCertificates, other.ClientCertificates);
+				&& _certificateHashes.SequenceEqual(other._certificateHashes);
 
 			public override bool Equals(object obj) => Equals(obj as Key);
 
@@ -131,7 +136,8 @@ namespace RestSharp
 					hash = hash * 31 + MaxRedirects.GetHashCode();
 					hash = hash * 31 + (Proxy == null ? 0 : System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(Proxy));
 					hash = hash * 31 + (Credentials == null ? 0 : System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(Credentials));
-					hash = hash * 31 + (ClientCertificates == null ? 0 : System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(ClientCertificates));
+					foreach (var certificateHash in _certificateHashes)
+						hash = hash * 31 + StringComparer.Ordinal.GetHashCode(certificateHash);
 					return hash;
 				}
 			}
